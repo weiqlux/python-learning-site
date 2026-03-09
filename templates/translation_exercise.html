@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ exercise.title }} - 英语翻译练习</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .exercise-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .exercise-card {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .exercise-header {
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .exercise-header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .exercise-header .source {
+            color: #888;
+            font-size: 1.1em;
+        }
+        .original-section {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+        }
+        .original-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        .original-text {
+            font-size: 1.4em;
+            line-height: 1.8;
+            color: #333;
+            font-style: italic;
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #333;
+            margin: 30px 0 20px 0;
+            font-size: 1.4em;
+        }
+        .section-title .icon {
+            font-size: 1.5em;
+        }
+        .structure-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .structure-table th,
+        .structure-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .structure-table th {
+            background: #f8f9fa;
+            color: #667eea;
+            font-weight: 600;
+        }
+        .structure-table tr:hover {
+            background: #f8f9fa;
+        }
+        .pos-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #667eea;
+            color: white;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        .role-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #28a745;
+            color: white;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+        .word-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+        .word-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        .word-card .meaning {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .word-card .example {
+            color: #666;
+            font-style: italic;
+            padding-left: 15px;
+            border-left: 2px solid #ddd;
+        }
+        .translation-reveal {
+            background: linear-gradient(135deg, #28a74515 0%, #20c99715 100%);
+            padding: 30px;
+            border-radius: 10px;
+            border-left: 5px solid #28a745;
+            margin-top: 30px;
+        }
+        .translation-reveal h2 {
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+        .translation-text {
+            font-size: 1.3em;
+            line-height: 1.8;
+            color: #333;
+        }
+        .tips-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        .tips-box h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        .tips-box p {
+            color: #856404;
+            line-height: 1.6;
+        }
+        .reveal-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 20px;
+        }
+        .reveal-btn:hover {
+            background: #764ba2;
+        }
+        .hidden {
+            display: none;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+        }
+        .nav-btn {
+            padding: 12px 25px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .nav-btn:hover {
+            background: #764ba2;
+        }
+        .nav-btn.disabled {
+            background: #ccc;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>📚 英语翻译练习</h1>
+            <p class="subtitle">{{ category_info.title }}</p>
+        </div>
+    </header>
+
+    <main class="container exercise-container">
+        <a href="/translation" class="back-link">← 返回练习列表</a>
+
+        <div class="exercise-card">
+            <div class="exercise-header">
+                <h1>{{ exercise.title }}</h1>
+                <div class="source">📚 出处：{{ exercise.source }}</div>
+            </div>
+
+            <div class="original-section">
+                <h2>📖 原文</h2>
+                <div class="original-text">{{ exercise.original }}</div>
+            </div>
+
+            <h2 class="section-title">
+                <span class="icon">🔍</span>
+                句子结构分析
+            </h2>
+            <table class="structure-table">
+                <thead>
+                    <tr>
+                        <th>成分</th>
+                        <th>词性</th>
+                        <th>在句中的作用</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in exercise.structure_analysis %}
+                    <tr>
+                        <td><code>{{ item.text }}</code></td>
+                        <td><span class="pos-tag">{{ item.pos }}</span></td>
+                        <td><span class="role-tag">{{ item.role }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <h2 class="section-title">
+                <span class="icon">📝</span>
+                重点词汇
+            </h2>
+            {% for word in exercise.key_words %}
+            <div class="word-card">
+                <h4>{{ word.word }}</h4>
+                <div class="meaning">💡 {{ word.meaning }}</div>
+                <div class="example">📌 例句：{{ word.example }}</div>
+            </div>
+            {% endfor %}
+
+            <button class="reveal-btn" onclick="toggleTranslation()">👁️ 查看参考翻译</button>
+            
+            <div id="translation" class="translation-reveal hidden">
+                <h2>✅ 参考翻译</h2>
+                <div class="translation-text">{{ exercise.translation }}</div>
+            </div>
+
+            <div class="tips-box">
+                <h3>💡 翻译提示</h3>
+                <p>{{ exercise.tips }}</p>
+            </div>
+
+            <div class="nav-buttons">
+                {% set prev_link = namespace(value=None) %}
+                {% set next_link = namespace(value=None) %}
+                
+                {% for ex in category_info.exercises %}
+                    {% if ex.id == exercise.id %}
+                        {% if loop.index > 1 %}
+                            {% set prev_link.value = category_info.exercises[loop.index - 2].id %}
+                        {% endif %}
+                        {% if loop.index < loop.length %}
+                            {% set next_link.value = category_info.exercises[loop.index].id %}
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                
+                {% if prev_link.value %}
+                <a href="/translation/{{ category }}/{{ prev_link.value }}" class="nav-btn">← 上一篇</a>
+                {% else %}
+                <span class="nav-btn disabled">← 上一篇</span>
+                {% endif %}
+                
+                {% if next_link.value %}
+                <a href="/translation/{{ category }}/{{ next_link.value }}" class="nav-btn">下一篇 →</a>
+                {% else %}
+                <span class="nav-btn disabled">下一篇 →</span>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Python 学习网 © 2026 | 英语翻译练习模块</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleTranslation() {
+            const translation = document.getElementById('translation');
+            const btn = document.querySelector('.reveal-btn');
+            translation.classList.toggle('hidden');
+            if (translation.classList.contains('hidden')) {
+                btn.textContent = '👁️ 查看参考翻译';
+            } else {
+                btn.textContent = '🙈 隐藏参考翻译';
+            }
+        }
+    </script>
+</body>
+</html>

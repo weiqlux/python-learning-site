@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英语翻译练习 - Python 学习网</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .translation-hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            border-radius: 12px;
+            margin-bottom: 40px;
+        }
+        .translation-hero h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .translation-hero p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .series-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .series-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-left: 5px solid #667eea;
+        }
+        .series-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .series-card h2 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+        .series-card .description {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+        .lesson-list {
+            list-style: none;
+            padding: 0;
+        }
+        .lesson-item {
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        .lesson-item:hover {
+            background: #e9ecef;
+        }
+        .lesson-item a {
+            text-decoration: none;
+            color: #667eea;
+            font-weight: 600;
+            display: block;
+        }
+        .lesson-item a:hover {
+            color: #764ba2;
+        }
+        .lesson-item .source {
+            font-size: 0.9em;
+            color: #888;
+            margin-top: 5px;
+        }
+        .feature-box {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .feature-box h2 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .features-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        .feature-item {
+            padding: 20px;
+        }
+        .feature-item .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        .feature-item h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>📚 英语翻译练习</h1>
+            <p class="subtitle">通过经典小说片段，提升英语翻译能力</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="translation-hero">
+            <h1>🎯 翻译练习</h1>
+            <p>精选哈利波特与 Minecraft 小说精彩片段</p>
+            <p>分析句子结构 · 学习重点词汇 · 完成翻译练习</p>
+        </div>
+
+        <div class="series-grid">
+            {% for category_key, category in exercises.items() %}
+            <div class="series-card">
+                <h2>{{ category.title }}</h2>
+                <p class="description">{{ category.description }}</p>
+                <ul class="lesson-list">
+                    {% for exercise in category.exercises %}
+                    <li class="lesson-item">
+                        <a href="/translation/{{ category_key }}/{{ exercise.id }}">
+                            📖 {{ exercise.title }}
+                        </a>
+                        <div class="source">📚 {{ exercise.source }}</div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="feature-box">
+            <h2>🌟 如何练习</h2>
+            <div class="features-row">
+                <div class="feature-item">
+                    <div class="icon">📝</div>
+                    <h3>第一步：阅读原文</h3>
+                    <p>仔细阅读英文原文，理解整体意思</p>
+                </div>
+                <div class="feature-item">
+                    <div class="icon">🔍</div>
+                    <h3>第二步：分析结构</h3>
+                    <p>查看句子结构分析，理解语法关系</p>
+                </div>
+                <div class="feature-item">
+                    <div class="icon">📖</div>
+                    <h3>第三步：学习词汇</h3>
+                    <p>掌握重点单词的词性和用法</p>
+                </div>
+                <div class="feature-item">
+                    <div class="icon">✍️</div>
+                    <h3>第四步：完成翻译</h3>
+                    <p>尝试自己翻译，然后对比参考答案</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Python 学习网 © 2026 | 英语翻译练习模块</p>
+        </div>
+    </footer>
+</body>
+</html>

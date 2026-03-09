@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ question.title }} - 题库练习</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .practice-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .practice-card {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .question-header {
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .question-header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .question-meta {
+            display: flex;
+            gap: 20px;
+            color: #888;
+            font-size: 0.95em;
+        }
+        .original-section {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+        }
+        .original-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        .original-text {
+            font-size: 1.4em;
+            line-height: 1.8;
+            color: #333;
+            font-style: italic;
+        }
+        .question-image {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .answer-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        .answer-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .submit-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 15px;
+            width: 100%;
+        }
+        .submit-btn:hover {
+            background: #764ba2;
+        }
+        .result-box {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 10px;
+            display: none;
+        }
+        .result-box.correct {
+            background: #d4edda;
+            border: 2px solid #28a745;
+        }
+        .result-box.incorrect {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+        }
+        .result-box h3 {
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        .result-box .reference {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .stats-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        .stats-box h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+        }
+        .stat-item .value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-item .label {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+        }
+        .difficulty-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        .difficulty-badge.hard { background: #f8d7da; color: #721c24; }
+        .difficulty-badge.medium { background: #fff3cd; color: #856404; }
+        .difficulty-badge.easy { background: #d4edda; color: #155724; }
+        .difficulty-badge.new { background: #e2e3e5; color: #383d41; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>📚 题库练习</h1>
+            <p class="subtitle">{{ question.category }}</p>
+        </div>
+    </header>
+
+    <main class="container practice-container">
+        <a href="/translation-db" class="back-link">← 返回题库</a>
+
+        <div class="practice-card" id="practice">
+            <div class="question-header">
+                <h1>{{ question.title }}</h1>
+                <div class="question-meta">
+                    <span>📚 {{ question.source or '未知出处' }}</span>
+                    <span>📅 添加日期：{{ question.created_date }}</span>
+                    {% if stats and stats.difficulty_level %}
+                    <span class="difficulty-badge {{ stats.difficulty_level }}">
+                        {{ {'hard': '🔴 困难', 'medium': '🟡 中等', 'easy': '🟢 简单', 'new': '⚪ 新题'}[stats.difficulty_level] }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="original-section">
+                <h2>📖 原文</h2>
+                <div class="original-text">{{ question.original }}</div>
+            </div>
+
+            {% if question.image_path %}
+            <div style="text-align: center;">
+                <img src="{{ question.image_path }}" alt="题目图片" class="question-image">
+            </div>
+            {% endif %}
+
+            <div class="answer-section">
+                <h2>✍️ 你的翻译</h2>
+                <p style="color: #666; margin-bottom: 15px;">请将你的翻译写在下面：</p>
+                <textarea id="userAnswer" placeholder="在这里输入你的中文翻译..."></textarea>
+                <button class="submit-btn" onclick="submitAnswer()">📤 提交答案</button>
+            </div>
+
+            <div id="resultBox" class="result-box">
+                <h3 id="resultTitle"></h3>
+                <div id="resultMessage"></div>
+                <div class="reference">
+                    <strong>✅ 参考翻译：</strong>
+                    <p style="margin-top: 10px; line-height: 1.8;">{{ question.translation }}</p>
+                </div>
+            </div>
+
+            {% if stats %}
+            <div class="stats-box">
+                <h3>📊 本题统计</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="value">{{ stats.total_attempts or 0 }}</div>
+                        <div class="label">答题次数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="value">{{ stats.correct_count or 0 }}</div>
+                        <div class="label">正确次数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="value">{{ ((stats.correct_count or 0) / (stats.total_attempts or 1) * 100)|round(1) }}%</div>
+                        <div class="label">正确率</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="value">{{ (stats.avg_similarity or 0)|round(2) }}</div>
+                        <div class="label">平均相似度</div>
+                    </div>
+                </div>
+                {% if stats.total_attempts and stats.total_attempts >= 3 %}
+                <p style="margin-top: 15px; color: #856404;">
+                    💡 
+                    {% if stats.difficulty_level == 'hard' %}
+                    这道题难度较高，正确率仅 {{ ((stats.correct_count or 0) / stats.total_attempts * 100)|round(1) }}%，需要多加练习！
+                    {% elif stats.difficulty_level == 'easy' %}
+                    这道题比较简单，正确率达 {{ ((stats.correct_count or 0) / stats.total_attempts * 100)|round(1) }}%！
+                    {% else %}
+                    这道题难度适中，正确率 {{ ((stats.correct_count or 0) / stats.total_attempts * 100)|round(1) }}%。
+                    {% endif %}
+                </p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% if question.tips %}
+            <div style="background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 8px; padding: 20px; margin-top: 30px;">
+                <h3 style="color: #0066cc; margin-bottom: 10px;">💡 翻译提示</h3>
+                <p style="color: #333; line-height: 1.6;">{{ question.tips }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Python 学习网 © 2026 | 题库练习</p>
+        </div>
+    </footer>
+
+    <script>
+        async function submitAnswer() {
+            const userAnswer = document.getElementById('userAnswer').value.trim();
+            if (!userAnswer) {
+                alert('请先输入你的翻译！');
+                return;
+            }
+
+            const resultBox = document.getElementById('resultBox');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultMessage = document.getElementById('resultMessage');
+
+            // 提交答案
+            const res = await fetch('/api/question/answer', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    question_id: {{ question.id }},
+                    user_answer: userAnswer
+                })
+            });
+
+            const result = await res.json();
+            
+            resultBox.style.display = 'block';
+            resultBox.className = 'result-box ' + (result.is_correct ? 'correct' : 'incorrect');
+            
+            if (result.is_correct) {
+                resultTitle.textContent = '🎉 回答正确！';
+                resultTitle.style.color = '#155724';
+            } else {
+                resultTitle.textContent = '💪 继续加油！';
+                resultTitle.style.color = '#721c24';
+            }
+            
+            resultMessage.innerHTML = `
+                <p><strong>你的答案：</strong>${userAnswer}</p>
+                <p><strong>相似度：</strong>${(result.similarity * 100).toFixed(1)}%</p>
+                <p>${result.message}</p>
+            `;
+
+            // 滚动到结果区域
+            resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // 更新统计（延迟刷新以显示最新数据）
+            setTimeout(() => location.reload(), 3000);
+        }
+
+        // 支持 Ctrl+Enter 提交
+        document.getElementById('userAnswer').addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                submitAnswer();
+            }
+        });
+    </script>
+</body>
+</html>

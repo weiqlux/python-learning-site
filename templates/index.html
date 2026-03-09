@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python 学习网 - 从零开始学 Python</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🐍 Python 学习网</h1>
+            <p class="subtitle">从零开始，轻松掌握 Python 编程</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="intro">
+            <h2>欢迎学习 Python！</h2>
+            <p>Python 是一门简单、优雅且强大的编程语言，适合初学者入门，也广泛应用于数据科学、人工智能、Web 开发等领域。</p>
+        </section>
+
+        <section class="category" style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); padding: 30px; border-radius: 12px; border-left: 5px solid #667eea;">
+            <h2 style="color: #667eea;">📚 英语翻译练习</h2>
+            <p style="margin-bottom: 20px;">精选哈利波特与 Minecraft 小说精彩片段，通过句子结构分析、重点词汇学习，提升英语翻译能力！</p>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <a href="/translation" class="lesson-card" style="display: inline-block; width: auto; padding: 15px 25px; text-decoration: none; flex: 1; min-width: 200px;">
+                    <h3 style="margin: 0;">📖 经典练习 →</h3>
+                </a>
+                <a href="/translation-db" class="lesson-card" style="display: inline-block; width: auto; padding: 15px 25px; text-decoration: none; flex: 1; min-width: 200px; background: #28a745; color: white;">
+                    <h3 style="margin: 0;">🗂️ 题库中心 →</h3>
+                </a>
+            </div>
+        </section>
+
+        {% for category_key, category in tutorials.items() %}
+        <section class="category">
+            <h2>{{ category.title }}</h2>
+            <div class="lessons-grid">
+                {% for lesson in category.lessons %}
+                <a href="/tutorial/{{ category_key }}/{{ lesson.id }}" class="lesson-card">
+                    <h3>{{ lesson.title }}</h3>
+                    <p>{{ lesson.exercise }}</p>
+                    <span class="start-btn">开始学习 →</span>
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+        {% endfor %}
+
+        <section class="features">
+            <h2>为什么选择 Python？</h2>
+            <div class="features-grid">
+                <div class="feature">
+                    <div class="feature-icon">📖</div>
+                    <h3>简单易学</h3>
+                    <p>语法简洁清晰，接近自然语言</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🚀</div>
+                    <h3>应用广泛</h3>
+                    <p>Web、数据科学、AI、自动化等</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📦</div>
+                    <h3>生态丰富</h3>
+                    <p>海量第三方库，开箱即用</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">💼</div>
+                    <h3>就业热门</h3>
+                    <p>市场需求大，薪资水平高</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Python 学习网 © 2026 | 用 Python 创造无限可能</p>
+        </div>
+    </footer>
+</body>
+</html>

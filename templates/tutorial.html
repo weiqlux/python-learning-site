@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ lesson.title }} - Python 学习网</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="/" class="back-link">← 返回首页</a>
+            <h1>🐍 Python 学习网</h1>
+        </div>
+    </header>
+
+    <main class="container">
+        <nav class="breadcrumb">
+            <a href="/">首页</a> → 
+            <a href="/#{{ category }}">{{ tutorials[category].title }}</a> → 
+            <span>{{ lesson.title }}</span>
+        </nav>
+
+        <article class="lesson-content">
+            {{ lesson.content | safe }}
+        </article>
+
+        <section class="exercise-box">
+            <h2>💪 动手练习</h2>
+            <p class="exercise-task">{{ lesson.exercise }}</p>
+            <div class="code-editor">
+                <label for="code-input">在这里写代码：</label>
+                <textarea id="code-input" rows="8" placeholder="# 写下你的代码..."></textarea>
+                <button id="run-btn" onclick="runCode()">运行代码 ▶</button>
+                <div id="output" class="output"></div>
+            </div>
+        </section>
+
+        <nav class="lesson-nav">
+            {% set lessons = tutorials[category].lessons %}
+            {% for l in lessons %}
+                {% if l.id == lesson.id %}
+                    {% if loop.index > 1 %}
+                    <a href="/tutorial/{{ category }}/{{ lessons[loop.index0 - 1].id }}" class="nav-btn prev">← 上一篇</a>
+                    {% endif %}
+                    {% if loop.index < loop.length %}
+                    <a href="/tutorial/{{ category }}/{{ lessons[loop.index0 + 1].id }}" class="nav-btn next">下一篇 →</a>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </nav>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Python 学习网 © 2026 | 用 Python 创造无限可能</p>
+        </div>
+    </footer>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
