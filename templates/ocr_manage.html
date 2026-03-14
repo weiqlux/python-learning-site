@@ -146,6 +146,11 @@
             border-left: 4px solid #667eea;
         }
         
+        .question-item.selected {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+        }
+        
         .question-title {
             font-weight: 600;
             color: #333;
@@ -370,6 +375,8 @@
             <h1>📚 OCR 题库管理</h1>
             <div class="header-actions">
                 <button class="btn btn-success" onclick="showCreateForm()">➕ 新建题目</button>
+                <button class="btn btn-primary" onclick="toggleSelectMode()">☑️ 多选模式</button>
+                <button class="btn btn-danger" id="exportBtn" onclick="exportSelected()" style="display:none;">📄 导出 PDF</button>
                 <a href="/ocr-upload" class="btn btn-primary">📷 拍照建题</a>
                 <a href="/" class="btn btn-secondary">🏠 返回首页</a>
             </div>
@@ -697,6 +704,229 @@
         let currentQuestion = null;
         
         let searchTimeout = null;
+        let selectMode = false;
+        let selectedQuestions = new Set();
+        
+        // 切换多选模式
+        function toggleSelectMode() {
+            selectMode = !selectMode;
+            selectedQuestions.clear();
+            
+            const exportBtn = document.getElementById('exportBtn');
+            exportBtn.style.display = selectMode ? 'inline-block' : 'none';
+            exportBtn.textContent = '📄 导出 PDF (0)';
+            
+            // 重新渲染列表以显示复选框
+            loadQuestions();
+            
+            // 更新按钮文本
+            const btn = event.target;
+            btn.textContent = selectMode ? '❌ 取消多选' : '☑️ 多选模式';
+            btn.classList.toggle('btn-danger', selectMode);
+            btn.classList.toggle('btn-primary', !selectMode);
+        }
+        
+        // 切换题目选择
+        function toggleQuestionSelect(qid, event) {
+            event.stopPropagation();
+            
+            if (selectedQuestions.has(qid)) {
+                selectedQuestions.delete(qid);
+            } else {
+                selectedQuestions.add(qid);
+            }
+            
+            // 更新复选框状态
+            const checkbox = document.getElementById(`checkbox-${qid}`);
+            if (checkbox) {
+                checkbox.checked = selectedQuestions.has(qid);
+            }
+            
+            // 更新导出按钮文本
+            const exportBtn = document.getElementById('exportBtn');
+            exportBtn.textContent = `📄 导出 PDF (${selectedQuestions.size})`;
+        }
+        
+        // 导出选中题目为 PDF
+        async function exportSelected() {
+            if (selectedQuestions.size === 0) {
+                alert('请先选择要导出的题目');
+                return;
+            }
+            
+            if (!confirm(`确定要导出选中的 ${selectedQuestions.size} 道题目为 PDF 吗？`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/ocr/export-pdf', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        question_ids: Array.from(selectedQuestions)
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // 生成打印页面
+                    generatePrintPage(result.questions);
+                } else {
+                    alert('导出失败：' + (result.error || '未知错误'));
+                }
+            } catch (error) {
+                alert('导出失败：' + error.message);
+            }
+        }
+        
+        // 生成打印页面
+        function generatePrintPage(questions) {
+            const printWindow = window.open('', '_blank');
+            
+            let html = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>AMC8 题目练习</title>
+                    <style>
+                        @media print {
+                            .no-print { display: none; }
+                            body { font-family: Arial, sans-serif; }
+                        }
+                        body { 
+                            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+                            max-width: 800px; 
+                            margin: 0 auto; 
+                            padding: 20px;
+                            line-height: 1.6;
+                        }
+                        .header { 
+                            text-align: center; 
+                            border-bottom: 2px solid #667eea; 
+                            padding-bottom: 20px; 
+                            margin-bottom: 30px;
+                        }
+                        .header h1 { color: #667eea; margin: 0; }
+                        .question { 
+                            margin-bottom: 30px; 
+                            padding: 20px; 
+                            border: 1px solid #e0e0e0; 
+                            border-radius: 8px;
+                            page-break-inside: avoid;
+                        }
+                        .question-header {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            margin-bottom: 15px;
+                            padding-bottom: 10px;
+                            border-bottom: 1px solid #f0f0f0;
+                        }
+                        .question-num {
+                            background: #667eea;
+                            color: white;
+                            width: 32px;
+                            height: 32px;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-weight: bold;
+                        }
+                        .question-meta {
+                            font-size: 12px;
+                            color: #666;
+                        }
+                        .question-content {
+                            font-size: 14px;
+                            margin-bottom: 15px;
+                        }
+                        .question-content pre {
+                            white-space: pre-wrap;
+                            word-wrap: break-word;
+                            font-family: inherit;
+                            background: #f8f9ff;
+                            padding: 10px;
+                            border-radius: 4px;
+                        }
+                        .knowledge-points {
+                            background: #f0f8ff;
+                            padding: 10px;
+                            border-radius: 4px;
+                            margin-bottom: 10px;
+                            font-size: 13px;
+                        }
+                        .answer {
+                            background: #e8f5e9;
+                            padding: 10px;
+                            border-radius: 4px;
+                            font-weight: bold;
+                            color: #2e7d32;
+                        }
+                        .print-btn {
+                            position: fixed;
+                            top: 20px;
+                            right: 20px;
+                            background: #667eea;
+                            color: white;
+                            border: none;
+                            padding: 12px 24px;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-size: 16px;
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                        }
+                        .print-btn:hover {
+                            background: #764ba2;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <button class="print-btn no-print" onclick="window.print()">🖨️ 打印 / 保存为 PDF</button>
+                    
+                    <div class="header">
+                        <h1>📚 AMC8 题目练习</h1>
+                        <p>共 ${questions.length} 道题目 | 生成时间：${new Date().toLocaleString()}</p>
+                    </div>
+            `;
+            
+            questions.forEach((q, i) => {
+                const difficultyText = q.difficulty === 'easy' ? '简单' : q.difficulty === 'medium' ? '中等' : '困难';
+                html += `
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-num">${i + 1}</div>
+                            <div class="question-meta">
+                                ${q.category || 'AMC8'} | ${q.lesson || '未分类'} | 难度：${difficultyText}
+                            </div>
+                        </div>
+                        <div class="question-content">
+                            <pre>${q.topic_text || '无题目内容'}</pre>
+                        </div>
+                        ${q.knowledge_points ? `
+                            <div class="knowledge-points">
+                                <strong>知识点：</strong>${q.knowledge_points}
+                            </div>
+                        ` : ''}
+                        ${q.answer ? `
+                            <div class="answer">
+                                <strong>答案：</strong>${q.answer}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            html += `
+                </body>
+                </html>
+            `;
+            
+            printWindow.document.write(html);
+            printWindow.document.close();
+        }
         
         // 加载题目列表
         async function loadQuestions() {
@@ -760,14 +990,24 @@
                 const topic = q.topic_text || '未命名题目';
                 const difficulty = q.difficulty || 'medium';
                 const difficultyText = difficulty === 'easy' ? '🟢 简单' : difficulty === 'medium' ? '🟡 中等' : '🔴 困难';
+                const isSelected = selectedQuestions.has(q.id);
                 
                 return `
-                    <div class="question-item" onclick="selectQuestion(${q.id})" data-id="${q.id}">
-                        <div class="question-title">${topic.substring(0, 80)}${topic.length > 80 ? '...' : ''}</div>
-                        <div class="question-meta">
-                            <span>📚 ${q.category || '未分类'}</span>
-                            <span>${difficultyText}</span>
-                            ${q.lesson ? `<span>📖 ${q.lesson}</span>` : ''}
+                    <div class="question-item ${isSelected ? 'selected' : ''}" onclick="${selectMode ? '' : `selectQuestion(${q.id})`}" data-id="${q.id}">
+                        ${selectMode ? `
+                            <input type="checkbox" 
+                                   id="checkbox-${q.id}" 
+                                   ${isSelected ? 'checked' : ''} 
+                                   onclick="toggleQuestionSelect(${q.id}, event)"
+                                   style="margin-right: 10px; transform: scale(1.2); cursor: pointer;">
+                        ` : ''}
+                        <div style="flex: 1;" onclick="${selectMode ? `toggleQuestionSelect(${q.id}, event)` : ''}">
+                            <div class="question-title">${topic.substring(0, 80)}${topic.length > 80 ? '...' : ''}</div>
+                            <div class="question-meta">
+                                <span>📚 ${q.category || '未分类'}</span>
+                                <span>${difficultyText}</span>
+                                ${q.lesson ? `<span>📖 ${q.lesson}</span>` : ''}
+                            </div>
                         </div>
                     </div>
                 `;

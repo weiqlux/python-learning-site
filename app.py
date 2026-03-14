@@ -1066,6 +1066,39 @@ def api_ocr_create_question():
         }), 500
 
 
+@app.route('/api/ocr/export-pdf', methods=['POST'])
+def api_ocr_export_pdf():
+    """API: 导出选中题目为 HTML（前端转换为 PDF）"""
+    try:
+        data = request.json
+        question_ids = data.get('question_ids', [])
+        
+        if not question_ids:
+            return jsonify({'error': '未选择题目'}), 400
+        
+        # 获取题目详情
+        questions = []
+        for qid in question_ids:
+            q = get_question(qid)
+            if q:
+                questions.append(q)
+        
+        if not questions:
+            return jsonify({'error': '未找到题目'}), 404
+        
+        # 返回题目数据，前端生成 PDF
+        return jsonify({
+            'success': True,
+            'questions': questions,
+            'count': len(questions)
+        })
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
 # 优雅关闭处理
 shutdown_requested = False
 server = None

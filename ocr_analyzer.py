@@ -195,8 +195,14 @@ class OCRQuestionAnalyzer:
                     if json_match:
                         text = json_match.group(0)
                 
-                analysis = json.loads(text)
-                return analysis
+                try:
+                    analysis = json.loads(text)
+                    return analysis
+                except json.JSONDecodeError as e:
+                    return {
+                        'error': f'JSON 解析失败: {e}',
+                        'raw_text': text[:1000]
+                    }
             else:
                 return {
                     'error': 'API 响应格式异常',
@@ -232,51 +238,40 @@ class OCRQuestionAnalyzer:
         Returns:
             处理结果
         """
-        print(f"\n📸 开始处理题目：{image_path}")
-        
         # 1. 保存图片
-        print("  ① 保存图片...")
         saved_path = self.save_image(image_path)
-        print(f"     保存位置：{saved_path}")
         
         # 2. AI 分析
-        print("  ② AI 分析题目...")
         analysis = self.analyze_image(image_path, custom_prompt)
         
-        if 'error' in analysis:
-            print(f"     ⚠️  分析警告：{analysis.get('error', '未知错误')}")
+        # 3. 检查分析结果
+        topic_text = analysis.get('topic_text', '')
+        if not topic_text or topic_text == '待识别':
+            topic_text = analysis.get('raw_text', '[识别失败，请手动编辑]')
         
-        # 3. 使用用户指定的分类或分析结果
+        # 4. 使用用户指定的分类或分析结果
         final_category = category or analysis.get('category', '未分类')
         final_lesson = lesson or analysis.get('lesson_suggestion', '')
         
-        # 4. 存入数据库
-        print("  ③ 存入数据库...")
-        try:
-            question_id = add_ocr_question(
-                subject=subject,
-                category=final_category,
-                lesson=final_lesson,
-                topic_text=analysis.get('topic_text', '待识别'),
-                topic_text_en=analysis.get('topic_text_en', ''),
-                knowledge_points=analysis.get('knowledge_points', []),
-                difficulty=analysis.get('difficulty', 'medium'),
-                solution_steps=analysis.get('solution_steps', []),
-                solution_thought=analysis.get('solution_thought', ''),
-                answer=analysis.get('answer', '待计算'),
-                keywords=analysis.get('keywords', []),
-                common_mistakes=analysis.get('common_mistakes', []),
-                image_path=saved_path,
-                ocr_raw=analysis.get('topic_text', ''),
-                analysis_json=analysis,
-                source=source
-            )
-            print(f"     ✅ 题目 ID: {question_id}")
-        except Exception as e:
-            print(f"     ❌ 数据库错误：{e}")
-            raise
-        
-        print(f"\n✅ 完成！题目已保存")
+        # 5. 存入数据库
+        question_id = add_ocr_question(
+            subject=subject,
+            category=final_category,
+            lesson=final_lesson,
+            topic_text=topic_text,
+            topic_text_en=analysis.get('topic_text_en', ''),
+            knowledge_points=analysis.get('knowledge_points', []),
+            difficulty=analysis.get('difficulty', 'medium'),
+            solution_steps=analysis.get('solution_steps', []),
+            solution_thought=analysis.get('solution_thought', ''),
+            answer=analysis.get('answer', '待计算'),
+            keywords=analysis.get('keywords', []),
+            common_mistakes=analysis.get('common_mistakes', []),
+            image_path=saved_path,
+            ocr_raw=analysis.get('raw_text', ''),
+            analysis_json=analysis,
+            source=source
+        )
         
         return {
             'question_id': question_id,
