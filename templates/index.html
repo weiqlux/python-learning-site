@@ -33,6 +33,19 @@
             </div>
         </section>
 
+        <section class="category" style="background: linear-gradient(135deg, #ff6b6b15 0%, #feca5715 100%); padding: 30px; border-radius: 12px; border-left: 5px solid #ff6b6b; margin-top: 30px;">
+            <h2 style="color: #ff6b6b;">📸 OCR 拍照建题</h2>
+            <p style="margin-bottom: 20px;">拍照上传题目 → AI 自动识别分析 → 生成结构化题库。支持数学、物理、化学等学科！</p>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <a href="/ocr-upload" class="lesson-card" style="display: inline-block; width: auto; padding: 15px 25px; text-decoration: none; flex: 1; min-width: 200px; background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%); color: white;">
+                    <h3 style="margin: 0;">📷 拍照建题 →</h3>
+                </a>
+                <a href="/ocr-upload#recent" class="lesson-card" style="display: inline-block; width: auto; padding: 15px 25px; text-decoration: none; flex: 1; min-width: 200px;">
+                    <h3 style="margin: 0;">📚 查看题库 →</h3>
+                </a>
+            </div>
+        </section>
+
         {% for category_key, category in tutorials.items() %}
         <section class="category">
             <h2>{{ category.title }}</h2>

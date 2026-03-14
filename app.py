@@ -6,6 +6,9 @@ from flask import Flask, render_template, jsonify, request, redirect, url_for
 from werkzeug.utils import secure_filename
 import os
 import json
+import signal
+import sys
+import logging
 from datetime import datetime
 from question_manager import (
     add_question, get_question, get_questions_by_date, search_questions,
@@ -13,6 +16,22 @@ from question_manager import (
     get_all_categories, get_date_range, init_db
 )
 from smart_add import smart_add_question
+from ocr_analyzer import OCRQuestionAnalyzer
+from ocr_question_manager import (
+    get_questions_by_filter, search_questions, get_all_subjects,
+    get_all_categories, get_all_lessons, get_statistics, record_answer
+)
+
+# 配置日志
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('/tmp/python-learning-site.log', encoding='utf-8')
+    ]
+)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
@@ -23,6 +42,13 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # 初始化数据库
 init_db()
+
+# OCR 题库数据库初始化
+from ocr_question_manager import init_db as init_ocr_db
+init_ocr_db()
+
+# OCR 分析器初始化
+ocr_analyzer = OCRQuestionAnalyzer()
 
 # 英语翻译练习素材
 TRANSLATION_EXERCISES = {
@@ -654,5 +680,237 @@ def config_success_page():
     return render_template('config_success.html')
 
 
+# ==================== OCR 拍照建题模块 ====================
+
+@app.route('/ocr-upload')
+def ocr_upload_page():
+    """OCR 拍照建题页面"""
+    return render_template('ocr_upload.html')
+
+
+@app.route('/api/ocr/analyze', methods=['POST'])
+def api_ocr_analyze():
+    """API: OCR 题目分析"""
+    try:
+        # 检查文件
+        if 'image' not in request.files:
+            return jsonify({'success': False, 'error': '未找到图片文件'}), 400
+        
+        file = request.files['image']
+        if file.filename == '':
+            return jsonify({'success': False, 'error': '未选择文件'}), 400
+        
+        # 保存临时文件
+        temp_path = f'/tmp/ocr_{datetime.now().timestamp()}.jpg'
+        file.save(temp_path)
+        
+        # 获取表单数据
+        subject = request.form.get('subject', 'Math')
+        category = request.form.get('category', 'AMC8')
+        lesson = request.form.get('lesson', '')
+        source = request.form.get('source', '')
+        
+        # 分析并保存
+        result = ocr_analyzer.process_and_save(
+            temp_path,
+            subject=subject,
+            category=category,
+            lesson=lesson,
+            source=source
+        )
+        
+        # 清理临时文件
+        try:
+            os.remove(temp_path)
+        except:
+            pass
+        
+        return jsonify({
+            'success': True,
+            'data': result
+        })
+        
+    except Exception as e:
+        logger.error(f"OCR 分析失败：{e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/ocr/options')
+def api_ocr_options():
+    """API: 获取下拉选项（课程/章节、题目来源）"""
+    try:
+        # AMC8 课程/章节列表
+        lessons = [
+            "Lesson-01-数列与数表",
+            "Lesson-02-角度",
+            "Lesson-03-方程",
+            "Lesson-04-整除",
+            "Lesson-05-质数合数",
+            "Lesson-06-因数倍数",
+            "Lesson-07-分数",
+            "Lesson-08-百分比",
+            "Lesson-09-比例",
+            "Lesson-10-三角形面积（一）",
+            "Lesson-11-三角形面积（二）",
+            "Lesson-12-勾股定理",
+            "Lesson-13-多边形周长面积",
+            "Lesson-14-排列组合",
+            "Lesson-15-概率",
+            "Lesson-16-有理数无理数幂",
+            "Lesson-17-余数",
+            "Lesson-18-圆与扇形",
+            "Lesson-19-逻辑推理",
+            "Lesson-20-长方体立方体",
+            "Lesson-21-不等式",
+            "Lesson-22-一次函数",
+            "Lesson-23-距离问题基础",
+            "Lesson-24-距离问题比例",
+            "Lesson-25-圆柱圆锥"
+        ]
+        
+        # AMC8 历届真题年份（2000-2025）+ 讲义
+        current_year = datetime.now().year
+        years = list(range(2000, current_year + 1))
+        years.reverse()  # 最新年份在前
+        
+        sources = [f"AMC8 {year}年真题" for year in years]
+        sources.append("讲义")
+        
+        return jsonify({
+            'lessons': lessons,
+            'sources': sources
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/ocr/stats')
+def api_ocr_stats():
+    """API: 获取题库统计"""
+    try:
+        stats = get_statistics()
+        
+        # 计算今日添加
+        from datetime import date
+        today = date.today().isoformat()
+        today_questions = len([q for q in stats.get('recent_questions', []) 
+                               if q.get('created_date') == today])
+        
+        return jsonify({
+            'total_questions': stats.get('total_questions', 0),
+            'today_questions': today_questions,
+            'total_categories': len(stats.get('by_category', {})),
+            'avg_accuracy': 0  # 待实现
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/ocr/questions')
+def api_ocr_questions():
+    """API: 获取题目列表"""
+    try:
+        limit = int(request.args.get('limit', 50))
+        subject = request.args.get('subject')
+        category = request.args.get('category')
+        lesson = request.args.get('lesson')
+        
+        questions = get_questions_by_filter(
+            subject=subject,
+            category=category,
+            lesson=lesson,
+            limit=limit
+        )
+        
+        return jsonify(questions)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/ocr/search')
+def api_ocr_search():
+    """API: 搜索题目"""
+    try:
+        query = request.args.get('q', '')
+        limit = int(request.args.get('limit', 50))
+        
+        if not query:
+            return jsonify([])
+        
+        questions = search_questions(query, limit=limit)
+        return jsonify(questions)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/ocr/answer', methods=['POST'])
+def api_ocr_answer():
+    """API: 记录答题"""
+    try:
+        data = request.json
+        question_id = data.get('question_id')
+        user_answer = data.get('user_answer', '')
+        is_correct = data.get('is_correct', False)
+        time_spent = data.get('time_spent')
+        notes = data.get('notes', '')
+        
+        if not question_id:
+            return jsonify({'success': False, 'error': '缺少题目 ID'}), 400
+        
+        answer_id = record_answer(
+            question_id=question_id,
+            user_answer=user_answer,
+            is_correct=is_correct,
+            time_spent=time_spent,
+            notes=notes
+        )
+        
+        return jsonify({
+            'success': True,
+            'answer_id': answer_id
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+# 优雅关闭处理
+shutdown_requested = False
+server = None
+
+def signal_handler(signum, frame):
+    """处理 SIGTERM 和 SIGINT 信号，实现优雅关闭"""
+    global shutdown_requested, server
+    sig_name = 'SIGTERM' if signum == signal.SIGTERM else 'SIGINT'
+    logger.info(f"收到 {sig_name} 信号，开始优雅关闭...")
+    shutdown_requested = True
+    if server:
+        logger.info("正在关闭服务器...")
+        server.shutdown()
+    logger.info("服务器已关闭，退出程序")
+    sys.exit(0)
+
+# 注册信号处理器
+signal.signal(signal.SIGTERM, signal_handler)
+signal.signal(signal.SIGINT, signal_handler)
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    from werkzeug.serving import make_server
+    logger.info("启动 Python 学习网站服务...")
+    logger.info("监听地址：http://0.0.0.0:5000")
+    logger.info="按 Ctrl+C 或发送 SIGTERM 信号来停止服务"
+    
+    # 使用 make_server 以便支持优雅关闭
+    server = make_server('0.0.0.0', 5000, app, threaded=True)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        logger.info("收到键盘中断，正在关闭...")
+    finally:
+        server.shutdown()
+        logger.info("服务已停止")
