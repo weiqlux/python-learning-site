@@ -179,17 +179,23 @@ class OCRQuestionAnalyzer:
             if 'output' in result_json and 'choices' in result_json['output']:
                 content = result_json['output']['choices'][0]['message']['content']
                 
+                # 多模态模型返回的是数组，需要提取文本
+                if isinstance(content, list):
+                    text = content[0].get('text', '') if content else ''
+                else:
+                    text = content
+                
                 # 提取 JSON（可能包含在 markdown 代码块中）
                 import re
-                json_match = re.search(r'```json\s*(.+?)\s*```', content, re.DOTALL)
+                json_match = re.search(r'```json\s*(.+?)\s*```', text, re.DOTALL)
                 if json_match:
-                    content = json_match.group(1)
+                    text = json_match.group(1)
                 else:
-                    json_match = re.search(r'\{.+?\}', content, re.DOTALL)
+                    json_match = re.search(r'\{.+?\}', text, re.DOTALL)
                     if json_match:
-                        content = json_match.group(0)
+                        text = json_match.group(0)
                 
-                analysis = json.loads(content)
+                analysis = json.loads(text)
                 return analysis
             else:
                 return {
