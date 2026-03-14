@@ -143,6 +143,13 @@
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
             width: 100%;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
         
         .btn:hover {
@@ -299,8 +306,13 @@
     <div class="container">
         <!-- 头部 -->
         <div class="header">
-            <h1>📸 OCR 拍照建题</h1>
-            <p>拍照上传题目 → AI 自动识别分析 → 生成结构化题库</p>
+            <div>
+                <h1>📸 OCR 拍照建题</h1>
+                <p>拍照上传题目 → AI 自动识别分析 → 生成结构化题库</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <a href="/ocr-manage" class="btn" style="background: #28a745; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">📚 题库管理</a>
+            </div>
         </div>
         
         <!-- 统计卡片 -->

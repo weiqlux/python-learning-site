@@ -688,6 +688,12 @@ def ocr_upload_page():
     return render_template('ocr_upload.html')
 
 
+@app.route('/ocr-manage')
+def ocr_manage_page():
+    """OCR 题库管理页面"""
+    return render_template('ocr_manage.html')
+
+
 @app.route('/api/ocr/analyze', methods=['POST'])
 def api_ocr_analyze():
     """API: OCR 题目分析"""
@@ -871,6 +877,149 @@ def api_ocr_answer():
         return jsonify({
             'success': True,
             'answer_id': answer_id
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/ocr/question/<int:question_id>', methods=['GET'])
+def api_ocr_get_question(question_id):
+    """API: 获取单个题目详情"""
+    try:
+        from ocr_question_manager import get_question
+        question = get_question(question_id)
+        
+        if not question:
+            return jsonify({'error': '题目不存在'}), 404
+        
+        # 解析 JSON 字段
+        import json
+        question['knowledge_points'] = json.loads(question.get('knowledge_points', '[]') or '[]')
+        question['solution_steps'] = json.loads(question.get('solution_steps', '[]') or '[]')
+        question['keywords'] = json.loads(question.get('keywords', '[]') or '[]')
+        question['common_mistakes'] = json.loads(question.get('common_mistakes', '[]') or '[]')
+        question['analysis_json'] = json.loads(question.get('analysis_json', '{}') or '{}')
+        
+        return jsonify(question)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/ocr/question/<int:question_id>', methods=['PUT'])
+def api_ocr_update_question(question_id):
+    """API: 更新题目"""
+    try:
+        from ocr_question_manager import get_db
+        import json
+        
+        data = request.json
+        
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # 构建更新字段
+        update_fields = []
+        params = []
+        
+        allowed_fields = ['topic_text', 'topic_text_en', 'category', 'lesson', 'difficulty',
+                         'solution_steps', 'solution_thought', 'answer', 'keywords',
+                         'common_mistakes', 'knowledge_points', 'source', 'is_active']
+        
+        for field in allowed_fields:
+            if field in data:
+                value = data[field]
+                # JSON 字段需要序列化
+                if field in ['solution_steps', 'keywords', 'common_mistakes', 'knowledge_points']:
+                    value = json.dumps(value, ensure_ascii=False)
+                update_fields.append(f'{field} = ?')
+                params.append(value)
+        
+        if not update_fields:
+            return jsonify({'success': False, 'error': '没有要更新的字段'}), 400
+        
+        update_fields.append('updated_at = CURRENT_TIMESTAMP')
+        params.append(question_id)
+        
+        cursor.execute(f'''
+            UPDATE ocr_questions 
+            SET {', '.join(update_fields)}
+            WHERE id = ?
+        ''', params)
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'message': '题目已更新'
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/ocr/question/<int:question_id>', methods=['DELETE'])
+def api_ocr_delete_question(question_id):
+    """API: 删除题目（软删除）"""
+    try:
+        from ocr_question_manager import get_db
+        
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            UPDATE ocr_questions 
+            SET is_active = 0, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        ''', (question_id,))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'message': '题目已删除'
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/ocr/question', methods=['POST'])
+def api_ocr_create_question():
+    """API: 创建新题目"""
+    try:
+        from ocr_question_manager import add_ocr_question
+        import json
+        
+        data = request.json
+        
+        question_id = add_ocr_question(
+            subject=data.get('subject', 'Math'),
+            category=data.get('category', 'AMC8'),
+            lesson=data.get('lesson', ''),
+            topic_text=data.get('topic_text', ''),
+            topic_text_en=data.get('topic_text_en', ''),
+            knowledge_points=data.get('knowledge_points', []),
+            difficulty=data.get('difficulty', 'medium'),
+            solution_steps=data.get('solution_steps', []),
+            solution_thought=data.get('solution_thought', ''),
+            answer=data.get('answer', ''),
+            keywords=data.get('keywords', []),
+            common_mistakes=data.get('common_mistakes', []),
+            source=data.get('source', '')
+        )
+        
+        return jsonify({
+            'success': True,
+            'question_id': question_id
         })
     except Exception as e:
         return jsonify({
