@@ -838,15 +838,47 @@ def api_ocr_questions():
 
 @app.route('/api/ocr/search')
 def api_ocr_search():
-    """API: 搜索题目"""
+    """API: 搜索题目（支持多维度筛选）"""
     try:
+        from ocr_question_manager import get_questions_by_filter
+        
         query = request.args.get('q', '')
-        limit = int(request.args.get('limit', 50))
+        lesson = request.args.get('lesson', '')
+        source = request.args.get('source', '')
+        category = request.args.get('category', '')
+        difficulty = request.args.get('difficulty', '')
+        limit = int(request.args.get('limit', 100))
         
-        if not query:
-            return jsonify([])
+        # 使用筛选函数
+        questions = get_questions_by_filter(
+            category=category if category else None,
+            lesson=lesson if lesson else None,
+            difficulty=difficulty if difficulty else None,
+            limit=limit
+        )
         
-        questions = search_questions(query, limit=limit)
+        # 如果有搜索关键词或来源，进一步筛选
+        if query or source:
+            filtered = []
+            for q in questions:
+                match = True
+                if query:
+                    # 全文搜索
+                    search_text = f"{q.get('topic_text', '')} {q.get('knowledge_points', '')} {q.get('answer', '')}".lower()
+                    if query.lower() not in search_text:
+                        match = False
+                
+                if source and match:
+                    # 来源搜索（支持模糊匹配）
+                    q_source = q.get('source', '').lower()
+                    if source.lower() not in q_source:
+                        match = False
+                
+                if match:
+                    filtered.append(q)
+            
+            questions = filtered
+        
         return jsonify(questions)
     except Exception as e:
         return jsonify({'error': str(e)}), 500

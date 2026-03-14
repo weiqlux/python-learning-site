@@ -381,23 +381,82 @@
                 <h2>📋 题目列表</h2>
                 
                 <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="🔍 搜索题目..." oninput="searchQuestions()">
+                    <input type="text" id="searchInput" placeholder="🔍 搜索：题目内容、知识点、答案、年份（如：2024、勾股定理、整除）..." oninput="debouncedSearch()">
                 </div>
                 
                 <div class="filter-section">
                     <div class="filter-group">
-                        <label>分类</label>
+                        <label>📚 分类</label>
                         <select id="filterCategory" onchange="loadQuestions()">
                             <option value="">全部分类</option>
                             <option value="AMC8">AMC8</option>
                             <option value="数论">数论</option>
                             <option value="几何">几何</option>
                             <option value="代数">代数</option>
+                            <option value="组合">组合</option>
+                            <option value="应用题">应用题</option>
                         </select>
                     </div>
                     
                     <div class="filter-group">
-                        <label>难度</label>
+                        <label>📖 课程/章节</label>
+                        <select id="filterLesson" onchange="loadQuestions()">
+                            <option value="">全部章节</option>
+                            <option value="Lesson-01-数列与数表">Lesson-01-数列与数表</option>
+                            <option value="Lesson-02-角度">Lesson-02-角度</option>
+                            <option value="Lesson-03-方程">Lesson-03-方程</option>
+                            <option value="Lesson-04-整除">Lesson-04-整除</option>
+                            <option value="Lesson-05-质数合数">Lesson-05-质数合数</option>
+                            <option value="Lesson-06-因数倍数">Lesson-06-因数倍数</option>
+                            <option value="Lesson-07-分数">Lesson-07-分数</option>
+                            <option value="Lesson-08-百分比">Lesson-08-百分比</option>
+                            <option value="Lesson-09-比例">Lesson-09-比例</option>
+                            <option value="Lesson-10-三角形面积（一）">Lesson-10-三角形面积（一）</option>
+                            <option value="Lesson-11-三角形面积（二）">Lesson-11-三角形面积（二）</option>
+                            <option value="Lesson-12-勾股定理">Lesson-12-勾股定理</option>
+                            <option value="Lesson-13-多边形周长面积">Lesson-13-多边形周长面积</option>
+                            <option value="Lesson-14-排列组合">Lesson-14-排列组合</option>
+                            <option value="Lesson-15-概率">Lesson-15-概率</option>
+                            <option value="Lesson-16-有理数无理数幂">Lesson-16-有理数无理数幂</option>
+                            <option value="Lesson-17-余数">Lesson-17-余数</option>
+                            <option value="Lesson-18-圆与扇形">Lesson-18-圆与扇形</option>
+                            <option value="Lesson-19-逻辑推理">Lesson-19-逻辑推理</option>
+                            <option value="Lesson-20-长方体立方体">Lesson-20-长方体立方体</option>
+                            <option value="Lesson-21-不等式">Lesson-21-不等式</option>
+                            <option value="Lesson-22-一次函数">Lesson-22-一次函数</option>
+                            <option value="Lesson-23-距离问题基础">Lesson-23-距离问题基础</option>
+                            <option value="Lesson-24-距离问题比例">Lesson-24-距离问题比例</option>
+                            <option value="Lesson-25-圆柱圆锥">Lesson-25-圆柱圆锥</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>📝 题目来源</label>
+                        <select id="filterSource" onchange="loadQuestions()">
+                            <option value="">全部来源</option>
+                            <optgroup label="历年真题">
+                                <option value="AMC8 2026">2026 年</option>
+                                <option value="AMC8 2025">2025 年</option>
+                                <option value="AMC8 2024">2024 年</option>
+                                <option value="AMC8 2023">2023 年</option>
+                                <option value="AMC8 2022">2022 年</option>
+                                <option value="AMC8 2021">2021 年</option>
+                                <option value="AMC8 2020">2020 年</option>
+                                <option value="AMC8 2019">2019 年</option>
+                                <option value="AMC8 2018">2018 年</option>
+                                <option value="AMC8 2017">2017 年</option>
+                                <option value="AMC8 2016">2016 年</option>
+                                <option value="AMC8 2015">2015 年</option>
+                            </optgroup>
+                            <optgroup label="其他">
+                                <option value="讲义">📘 讲义</option>
+                                <option value="模拟题">📝 模拟题</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>📊 难度</label>
                         <select id="filterDifficulty" onchange="loadQuestions()">
                             <option value="">全部难度</option>
                             <option value="easy">🟢 简单</option>
@@ -405,6 +464,11 @@
                             <option value="hard">🔴 困难</option>
                         </select>
                     </div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <span id="resultCount" style="color: #666; font-size: 14px;">加载中...</span>
+                    <button class="btn btn-secondary" onclick="resetFilters()" style="padding: 8px 16px; font-size: 13px;">🔄 重置筛选</button>
                 </div>
                 
                 <div id="questionList" class="question-list">
@@ -632,23 +696,55 @@
         let currentQuestionId = null;
         let currentQuestion = null;
         
+        let searchTimeout = null;
+        
         // 加载题目列表
         async function loadQuestions() {
             try {
                 const category = document.getElementById('filterCategory').value;
+                const lesson = document.getElementById('filterLesson').value;
+                const source = document.getElementById('filterSource').value;
                 const difficulty = document.getElementById('filterDifficulty').value;
+                const searchQuery = document.getElementById('searchInput').value;
                 
-                let url = '/api/ocr/questions?limit=100';
-                if (category) url += `&category=${category}`;
-                if (difficulty) url += `&difficulty=${difficulty}`;
+                // 构建搜索 URL
+                let url = '/api/ocr/search?limit=100';
+                
+                if (searchQuery) url += `&q=${encodeURIComponent(searchQuery)}`;
+                if (lesson) url += `&lesson=${encodeURIComponent(lesson)}`;
+                if (source) url += `&source=${encodeURIComponent(source)}`;
+                if (category) url += `&category=${encodeURIComponent(category)}`;
+                if (difficulty) url += `&difficulty=${encodeURIComponent(difficulty)}`;
                 
                 const response = await fetch(url);
                 const questions = await response.json();
                 
                 displayQuestionList(questions);
+                
+                // 更新结果计数
+                document.getElementById('resultCount').textContent = `找到 ${questions.length} 道题目`;
             } catch (error) {
                 console.error('加载题目失败:', error);
+                document.getElementById('resultCount').textContent = '加载失败';
             }
+        }
+        
+        // 防抖搜索
+        function debouncedSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                loadQuestions();
+            }, 300);
+        }
+        
+        // 重置筛选
+        function resetFilters() {
+            document.getElementById('filterCategory').value = '';
+            document.getElementById('filterLesson').value = '';
+            document.getElementById('filterSource').value = '';
+            document.getElementById('filterDifficulty').value = '';
+            document.getElementById('searchInput').value = '';
+            loadQuestions();
         }
         
         // 显示题目列表
@@ -882,23 +978,7 @@
             document.getElementById('emptyState').style.display = 'block';
         }
         
-        // 搜索
-        async function searchQuestions() {
-            const query = document.getElementById('searchInput').value;
-            
-            if (!query) {
-                loadQuestions();
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/api/ocr/search?q=${encodeURIComponent(query)}&limit=50`);
-                const questions = await response.json();
-                displayQuestionList(questions);
-            } catch (error) {
-                console.error('搜索失败:', error);
-            }
-        }
+
         
         // 显示提示
         function showAlert(message, type) {
