@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📚 AMC8 知识讲义 - Python 学习网</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-tab {
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: #f0f0f0;
+            color: #666;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .nav-tab:hover, .nav-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar h3 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .lesson-list {
+            list-style: none;
+        }
+        
+        .lesson-item {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        
+        .lesson-item:hover {
+            background: #f8f9ff;
+            border-left-color: #667eea;
+        }
+        
+        .lesson-item.active {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-left-color: #667eea;
+        }
+        
+        .lesson-num {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            font-size: 13px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .lesson-title {
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .content-area {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            min-height: 80vh;
+        }
+        
+        .lesson-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .lesson-header h2 {
+            color: #667eea;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .lesson-meta {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .meta-tag {
+            background: #f0f3ff;
+            color: #667eea;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .knowledge-section {
+            margin-bottom: 30px;
+        }
+        
+        .knowledge-section h3 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .knowledge-section h3::before {
+            content: '📌';
+        }
+        
+        .knowledge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .knowledge-card {
+            background: #f8f9ff;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .knowledge-card h4 {
+            color: #667eea;
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .knowledge-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .knowledge-card li {
+            padding: 8px 0;
+            padding-left: 20px;
+            position: relative;
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        .knowledge-card li::before {
+            content: '•';
+            color: #667eea;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+        
+        .formula-section {
+            margin-bottom: 30px;
+        }
+        
+        .formula-section h3 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .formula-section h3::before {
+            content: '📐';
+            margin-right: 8px;
+        }
+        
+        .formula-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .formula-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .concept-section {
+            margin-bottom: 30px;
+        }
+        
+        .concept-section h3 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .concept-section h3::before {
+            content: '💡';
+            margin-right: 8px;
+        }
+        
+        .concept-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .concept-tag {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .overview-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        
+        .overview-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            border-color: #667eea;
+        }
+        
+        .overview-card .lesson-num-large {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .overview-card h4 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        
+        .overview-card p {
+            color: #666;
+            font-size: 13px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #667eea;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .search-box {
+            margin-bottom: 20px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                max-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>📚 AMC8 知识讲义</h1>
+            <p>系统整理 AMC8 数学竞赛 25 个核心知识点，助你高效备考</p>
+            
+            <div class="nav-tabs">
+                <a href="/" class="nav-tab">🏠 首页</a>
+                <a href="/ocr-upload" class="nav-tab">📷 拍照建题</a>
+                <a href="/ocr-manage" class="nav-tab">📋 题库管理</a>
+                <a href="/amc8-knowledge" class="nav-tab active">📚 知识讲义</a>
+            </div>
+        </div>
+        
+        <div class="main-grid">
+            <!-- 侧边栏：课程列表 -->
+            <div class="sidebar">
+                <h3>📖 课程目录</h3>
+                <div class="search-box">
+                    <input type="text" id="lessonSearch" placeholder="🔍 搜索课程..." oninput="filterLessons()">
+                </div>
+                <ul class="lesson-list" id="lessonList">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>加载中...</p>
+                    </div>
+                </ul>
+            </div>
+            
+            <!-- 内容区 -->
+            <div class="content-area" id="contentArea">
+                <div class="empty-state">
+                    <h2>🎯 欢迎使用 AMC8 知识讲义</h2>
+                    <p>点击左侧课程查看详细知识点</p>
+                    <br>
+                    <div class="overview-grid" id="overviewGrid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let lessonsData = [];
+        let currentLesson = null;
+        
+        // 加载课程数据
+        async function loadLessons() {
+            try {
+                const response = await fetch('/static/amc8-knowledge/amc8_knowledge_summary.json');
+                lessonsData = await response.json();
+                
+                // 按课程编号排序
+                lessonsData.sort((a, b) => a.lesson_num - b.lesson_num);
+                
+                displayLessonList(lessonsData);
+                displayOverview(lessonsData);
+            } catch (error) {
+                console.error('加载课程失败:', error);
+                document.getElementById('lessonList').innerHTML = '<li>加载失败</li>';
+            }
+        }
+        
+        // 显示课程列表
+        function displayLessonList(lessons) {
+            const list = document.getElementById('lessonList');
+            
+            list.innerHTML = lessons.map(l => `
+                <li class="lesson-item" onclick="showLesson(${l.lesson_num})" data-num="${l.lesson_num}">
+                    <span class="lesson-num">${l.lesson_num}</span>
+                    <span class="lesson-title">${l.title}</span>
+                </li>
+            `).join('');
+        }
+        
+        // 显示概览
+        function displayOverview(lessons) {
+            const grid = document.getElementById('overviewGrid');
+            
+            grid.innerHTML = lessons.map(l => `
+                <div class="overview-card" onclick="showLesson(${l.lesson_num})">
+                    <div class="lesson-num-large">${l.lesson_num}</div>
+                    <h4>${l.title}</h4>
+                    <p>${l.key_points.length} 个知识点类别 · ${l.formulas.length} 个公式</p>
+                </div>
+            `).join('');
+        }
+        
+        // 显示课程详情
+        function showLesson(lessonNum) {
+            const lesson = lessonsData.find(l => l.lesson_num === lessonNum);
+            if (!lesson) return;
+            
+            currentLesson = lesson;
+            
+            // 高亮选中
+            document.querySelectorAll('.lesson-item').forEach(item => {
+                item.classList.toggle('active', parseInt(item.dataset.num) === lessonNum);
+            });
+            
+            // 构建内容
+            const content = document.getElementById('contentArea');
+            
+            let html = `
+                <div class="lesson-header">
+                    <h2>Lesson ${lesson.lesson_num}: ${lesson.title}</h2>
+                    <div class="lesson-meta">
+                        <span class="meta-tag">📚 ${lesson.key_points.length} 个知识点类别</span>
+                        <span class="meta-tag">📐 ${lesson.formulas.length} 个公式</span>
+                        <span class="meta-tag">💡 ${lesson.concepts.length} 个核心概念</span>
+                    </div>
+                </div>
+            `;
+            
+            // 知识点
+            if (lesson.key_points.length > 0) {
+                html += `
+                    <div class="knowledge-section">
+                        <h3>核心知识点</h3>
+                        <div class="knowledge-grid">
+                `;
+                
+                lesson.key_points.forEach(kp => {
+                    if (kp.points && kp.points.length > 0) {
+                        html += `
+                            <div class="knowledge-card">
+                                <h4>${kp.category}</h4>
+                                <ul>
+                                    ${kp.points.map(p => `<li>${p}</li>`).join('')}
+                                </ul>
+                            </div>
+                        `;
+                    }
+                });
+                
+                html += '</div></div>';
+            }
+            
+            // 公式
+            if (lesson.formulas.length > 0) {
+                html += `
+                    <div class="formula-section">
+                        <h3>重要公式</h3>
+                        <div class="formula-list">
+                            ${lesson.formulas.map(f => `<span class="formula-item">${f}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // 核心概念
+            if (lesson.concepts.length > 0) {
+                html += `
+                    <div class="concept-section">
+                        <h3>核心概念</h3>
+                        <div class="concept-tags">
+                            ${lesson.concepts.map(c => `<span class="concept-tag">${c}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            content.innerHTML = html;
+        }
+        
+        // 筛选课程
+        function filterLessons() {
+            const query = document.getElementById('lessonSearch').value.toLowerCase();
+            
+            if (!query) {
+                displayLessonList(lessonsData);
+                return;
+            }
+            
+            const filtered = lessonsData.filter(l => 
+                l.title.toLowerCase().includes(query) ||
+                l.lesson_num.toString() === query
+            );
+            
+            displayLessonList(filtered);
+        }
+        
+        // 页面加载
+        loadLessons();
+    </script>
+</body>
+</html>

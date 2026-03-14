@@ -1,0 +1,1386 @@
+[
+  {
+    "lesson_num": 1,
+    "title": "第一讲 数列和数表",
+    "key_points": [
+      {
+        "category": "Lesson 1 Series and Numerical Table",
+        "points": []
+      },
+      {
+        "category": "Arithmetic Series 等差数列",
+        "points": [
+          "定义：前一项减后一项的差相等。",
+          "五大要素：",
+          "求公差：",
+          "求和：",
+          "求项数："
+        ]
+      },
+      {
+        "category": "Geometric Series 等比数列",
+        "points": [
+          "定义：前一项与后一项的比值相等。",
+          "五大要素：",
+          "求第n项：",
+          "$a_{n} = a_{1} \\times q^{n - 1}\\ (a_{1}q \\neq 0)$",
+          "$a_{n} = a_{m} \\times q^{n - m}\\ (a_{1}q \\neq 0)$"
+        ]
+      },
+      {
+        "category": "Numerical Table 数表",
+        "points": [
+          "规律："
+        ]
+      },
+      {
+        "category": "Pascal's Triangle 杨辉三角",
+        "points": [
+          "规律："
+        ]
+      }
+    ],
+    "formulas": [
+      "$22 = 10 + 4d$",
+      "$\n\n# Geometric Series 等比数列\n\n1.  定义：前一项与后一项的比值相等。\n\n2.  五大要素：\n\n    (1) 首项 first term：$",
+      "$\n\n3.  $",
+      "$。\n\n**解**：由性质 $",
+      "$，求 $",
+      "$\n所以 $",
+      "$\n\n(3) 第n行所有数之和 $",
+      "$2024 = 3n - 2 + (m - 1) \\times 1$",
+      "$\n\n<!-- -->\n\n6.  求第n项：\n\n<!-- -->\n\n(1) 公式：\n\n<!-- -->\n\n1.  $",
+      "$。\n\n## 例题\n\n**例题1**：求等差数列 3, 7, 11, 15, ... 的第10项。\n\n**解**：首项 $"
+    ],
+    "concepts": [
+      "例题4",
+      "例题1",
+      "解",
+      "例题3",
+      "例题2"
+    ]
+  },
+  {
+    "lesson_num": 10,
+    "title": "第十讲 三角形面积（一）",
+    "key_points": [
+      {
+        "category": "Lesson 10 Area of Triangle",
+        "points": []
+      },
+      {
+        "category": "面积公式",
+        "points": [
+          "平行四边形面积=底$\\times$高",
+          "三角形面积=底$\\times$高$\\div$`<!-- -->`{=html}2"
+        ]
+      },
+      {
+        "category": "一半模型",
+        "points": [
+          "平行四边形中的一半模型，图中各点均是任意点，阴影部分是平行四边形面积的一半。"
+        ]
+      },
+      {
+        "category": "等积变形",
+        "points": [
+          "等底等高的两个三角形面积相等。",
+          "两个三角形高相等，面积比等于它们的底之比。两个三角形底相等，面积比等于它们的高之比。",
+          "夹在一组平行线之间的等积变形，如图$S_{\\bigtriangleup ACD} = S_{\\bigtriangleup BCD}$。反之，如果$S_{\\bigtriangleup ACD} = S_{\\bigtriangleup BCD}$，则直线AB∥CD。"
+        ]
+      },
+      {
+        "category": "鸟头模型",
+        "points": [
+          "两个三角形中有一个角相等或互补，这两个三角形叫做共角三角形。",
+          "共角三角形的面积比等于对应角（相等角或互补角）两夹边的乘积之比。",
+          "在△ABC中，D、E分别是AB、AC上的点，则$S_{\\bigtriangleup ADE}:S_{\\bigtriangleup ABC} = (AD \\times AE):(AB \\times AC)$"
+        ]
+      }
+    ],
+    "formulas": [
+      "$S_{\\triangle CDE} = \\frac{1}{2} \\times CE \\times h$",
+      "$S_{\\triangle ABE} = \\frac{1}{2} \\times BE \\times h$",
+      "$S_{\\triangle ABE} + S_{\\triangle CDE} = \\frac{1}{2} \\times (BE + CE) \\times h = \\frac{1}{2} \\times b \\times h = \\frac{1}{2}S_{ABCD}$",
+      "$\\frac{1}{2}$",
+      "$S_{\\triangle DEF}:S_{\\triangle ABC} = 1:4$",
+      "$= (2 \\times 1):(5 \\times 3) = 2:15$",
+      "$S_{\\bigtriangleup ADE}:S_{\\bigtriangleup ABC} = (AD \\times AE):(AB \\times AC)$",
+      "$S_{\\triangle ABE} + S_{\\triangle CDE} = \\frac{1}{2}S_{ABCD}$",
+      "$\\div$",
+      "$S_{\\triangle CEF}:S_{\\triangle ABC} = 1:4$"
+    ],
+    "concepts": [
+      "例题4",
+      "例题5",
+      "例题1",
+      "例题6",
+      "解",
+      "例题7",
+      "例题3",
+      "例题2"
+    ]
+  },
+  {
+    "lesson_num": 11,
+    "title": "第十一讲 三角形面积（二）",
+    "key_points": [
+      {
+        "category": "Lesson 11 Area of Triangle",
+        "points": []
+      },
+      {
+        "category": "相似模型",
+        "points": [
+          "![](media/image4.png){width=\"1.3708333333333333in\""
+        ]
+      },
+      {
+        "category": "![](media/image5.png){width=\"1.4861111111111112in\" height=\"1.0465277777777777in\"}蝴蝶模型",
+        "points": [
+          "任意四边形中的\"蝶形\"",
+          "$S_{1}:S_{2} = S_{4}:S_{3}$或$S_{1} \\times S_{3} = S_{2} \\times S_{4}$",
+          "AO:OC=($S_{1} + S_{2}$):($S_{3} + S_{4}$)",
+          "![](media/image6.png){width=\"1.5416666666666667in\"",
+          "$S_{1}:S_{3} = a^{2}:b^{2}$"
+        ]
+      },
+      {
+        "category": "![](media/image7.png){width=\"1.2659722222222223in\" height=\"1.0402777777777779in\"}燕尾模型",
+        "points": [
+          "$S_{\\bigtriangleup ABO}:S_{\\bigtriangleup ACO} = S_{\\bigtriangleup BOD}:S_{\\bigtriangleup COD} = BD:CD$",
+          "$S_{\\bigtriangleup ABO}:S_{\\bigtriangleup BCO} = S_{\\bigtriangleup AOE}:S_{\\bigtriangleup COE} = AE:CE$",
+          "$S_{\\bigtriangleup BCO}:S_{\\bigtriangleup ACO} = S_{\\bigtriangleup BOF}:S_{\\bigtriangleup AOF} = BF:AF$"
+        ]
+      }
+    ],
+    "formulas": [
+      "$)\n\n<!-- -->\n\n2.  ![](media/image6.png){width=\"1.5416666666666667in\"\n    height=\"1.1625in\"}梯形中的\"蝶形\"\n\n<!-- -->\n\n1.  $",
+      "$\n\n3.  $",
+      "$\n由BD:DC = 2:1，得：$",
+      "$份\n\n# ![](media/image7.png){width=\"1.2659722222222223in\" height=\"1.0402777777777779in\"}燕尾模型\n\n1.  $",
+      "$\n\n# ![](media/image5.png){width=\"1.4861111111111112in\" height=\"1.0465277777777777in\"}蝴蝶模型\n\n1.  任意四边形中的\"蝶形\"\n\n<!-- -->\n\n1.  $",
+      "$\n解方程组得：$",
+      "$\n\n**例题2**：在△ABC中，D、E分别在AB、AC上，且AD:DB = 1:1，AE:EC = 2:1，已知$",
+      "$\n梯形面积 = $",
+      "$\n\n**例题4**：在梯形ABCD中，AD∥BC，AD = 3，BC = 5，对角线AC、BD交于点O，已知$",
+      "$。\n\n**解**：根据燕尾模型，设$"
+    ],
+    "concepts": [
+      "例题4",
+      "例题5",
+      "例题1",
+      "例题6",
+      "解",
+      "例题3",
+      "例题2"
+    ]
+  },
+  {
+    "lesson_num": 12,
+    "title": "第十二讲 毕达哥拉斯定理",
+    "key_points": [
+      {
+        "category": "Lesson 12 Pythagorean Theorem",
+        "points": []
+      },
+      {
+        "category": "毕达哥拉斯定理",
+        "points": [
+          "毕达哥拉斯定理也称为勾股定理：直角三角形中，两条直角边的平方之和等于斜边的平方。",
+          "常见勾股数：(3,4,5)、(5,12,13)、(7,24,25)、(8,15,17)、(9,40,41)",
+          "额外勾股数：(11,60,61)、(12,35,37)、(13,84,85)、(15,112,113)"
+        ]
+      },
+      {
+        "category": "毕达哥拉斯定理相关结论",
+        "points": [
+          "在直角三角形的三条边上作各种形状的相似图形，符合：$S_{1} = S_{2} + S_{3}$",
+          "以直角三角形的三条边为直径作半圆，可以得出：$S_{1} = S_{2} + S_{3}$",
+          "特殊直角三角形1：30°内角所对的直角边长度是斜边的一半。",
+          "特殊直角三角形1：内角为45°、45°、90°的直角三角形中，三条边的比例为$\\sqrt{2}:1:1$。",
+          "直角三角形斜边上的中线长度是斜边的一半。"
+        ]
+      }
+    ],
+    "formulas": [
+      "$\\frac{1}{2} \\times \\pi \\times (\\frac{5}{2})^2 = \\frac{25\\pi}{8}$",
+      "$AM = MB = MC = \\frac{1}{2}AB$",
+      "$\\frac{1}{2} \\times AB = \\frac{1}{2} \\times 10 = 5$",
+      "$c = \\sqrt{6^2 + 8^2} = \\sqrt{36 + 64} = 10$",
+      "$AB = \\sqrt{8^2 + 6^2} = \\sqrt{64 + 36} = \\sqrt{100} = 10$",
+      "$r = \\frac{a + b - c}{2} = \\frac{6 + 8 - 10}{2} = \\frac{4}{2} = 2$",
+      "$\\frac{9\\pi}{8} + \\frac{16\\pi}{8} = \\frac{25\\pi}{8}$",
+      "$S_{1} = S_{2} + S_{3}$",
+      "$x^2 + 5^2 = 13^2$",
+      "$\\sqrt{25} = 5$"
+    ],
+    "concepts": [
+      "例题4",
+      "例题5",
+      "例题1",
+      "例题6",
+      "解",
+      "例题7",
+      "例题3",
+      "例题8",
+      "例题2"
+    ]
+  },
+  {
+    "lesson_num": 13,
+    "title": "第十三讲 多边形的周长与面积",
+    "key_points": [
+      {
+        "category": "Lesson 13 Perimeters and Areas of Polygons",
+        "points": []
+      },
+      {
+        "category": "![](media/image4.png){width=\"1.1034722222222222in\" height=\"1.0402777777777779in\"}长方形和正方形",
+        "points": [
+          "长方形：有四个直角的四边形。",
+          "![](media/image5.png){width=\"0.9756944444444444in\"",
+          "周长：P=2(L+W)",
+          "面积：A=L$\\times$W",
+          "正方形：有四个直角和四条等边的四边形。"
+        ]
+      },
+      {
+        "category": "平行四边形和菱形",
+        "points": [
+          "![](media/image6.png){width=\"5.414583333333334in\"",
+          "![](media/image7.png){width=\"2.542361111111111in\"",
+          "菱形的周长：P=4a",
+          "菱形的面积：$A = \\frac{1}{2}d_{1} \\times d_{2}$"
+        ]
+      },
+      {
+        "category": "正多边形",
+        "points": [
+          "各边相等，各角也相等的多边形，叫正多边形。",
+          "正五边形 正六边形 正八边形"
+        ]
+      },
+      {
+        "category": "不规则多边形",
+        "points": [
+          "相加法：这种方法是将不规则图形分解转化成几个基本规则图形，分别计算它们的面积，然后相加求出整个图形的面积。\\"
+        ]
+      },
+      {
+        "category": "皮克定理",
+        "points": [
+          "![](media/image9.png){width=\"1.582638888888889in\"",
+          "三角形格点：$S = (a + \\frac{b}{2} - 1) \\times$单位面积$\\times$`<!-- -->`{=html}2"
+        ]
+      }
+    ],
+    "formulas": [
+      "$A = \\frac{1}{2}d_{1} \\times d_{2}$",
+      "$6 \\times 6 = 36$",
+      "$S = (a + \\frac{b}{2} - 1) \\times$",
+      "$2 \\times (8 + 5) = 2 \\times 13 = 26$",
+      "$48 - 12 = 36$",
+      "$8 \\times 5 = 40$",
+      "$\\frac{1}{2} \\times 10 \\times 8 = 40$",
+      "$16 + 6 = 22$",
+      "$4 \\times 3 = 12$",
+      "$8 \\times 6 = 48$"
+    ],
+    "concepts": [
+      "例题4",
+      "例题5",
+      "例题1",
+      "例题6",
+      "解",
+      "例题7",
+      "例题3",
+      "例题8",
+      "例题2"
+    ]
+  },
+  {
+    "lesson_num": 14,
+    "title": "第十四讲 排列组合",
+    "key_points": [
+      {
+        "category": "Lesson 14 Permutation and Combination",
+        "points": []
+      },
+      {
+        "category": "加法原理",
+        "points": [
+          "如果事件$E_{1}$可以以$n_{1}$种方式发生，事件$E_{2}$可以以$n_{2}$种方式发生，事件$E_{3}$可以以$n_{k}$种方式发生，并且如果任何事件$E_{1}$，$E_{2}$或$E_{k}$发生，则工作完成，那么总共可以完成该工作的方式有$n_{1} + n_{2} + \\ldots + n_{k}$种。"
+        ]
+      },
+      {
+        "category": "乘法原理",
+        "points": [
+          "当一个任务由k个独立的部分组成时，如果第一个部分可以用$n_{1}$种方式完成，第二个部分可以用$n_{2}$种方式完成，以此类推到第k个部分，可以用$n_{k}$种方式完成，那么总的可能完成该任务的方式为它们的乘积：$n_{1} \\times n_{2} \\times \\ldots \\times n_{k}$"
+        ]
+      },
+      {
+        "category": "阶乘和排列",
+        "points": [
+          "一个正整数的阶乘（factorial）是所有小于及等于该数的正整数的积，自然数n的阶乘写作n!。",
+          "n! = 1\\*2\\*3\\*4......\\*n = n\\*（n-1）\\*（n-2）......\\*1",
+          "如果该连续相乘的最小数不是1：n\\*（n-1）\\*...\\*（n-k+1）= n!/(n-k)!",
+          "常见的排列：从n个不同的元素中，任取m(m≤n)个元素按照一定的顺序排成一列，叫做从n个不同元素中取出m个元素的一个排列。顺序影响结果。",
+          "这种排列的可能性求解如下：这m个元素，分别有n, n-1，...,"
+        ]
+      },
+      {
+        "category": "直线排列（排队）的常见题型和技巧",
+        "points": [
+          "捆绑法",
+          "插板法"
+        ]
+      },
+      {
+        "category": "圆排列",
+        "points": [
+          "如果是n个人进行圆排列，那么结果为(n-1)!，即(人数-1)!"
+        ]
+      },
+      {
+        "category": "组合",
+        "points": [
+          "对r个元素进行排列，如果考虑顺序，排列个数是P(r,r)；如果不考虑顺序，个数为1。那么已知在考虑顺序时，n个元素中选取r个考虑顺序是P(n,r)，此时如果选取的r个是无序的，只要我们把P(n,r)的结果中重复的部分P(r,r)除掉，就是组合，得到的结果是P(n,r)/P(r,r)=n!/((n-r)!(r!))，又可以写作组合数$C_{n}^{r}$。",
+          "$C_{n}^{r} = \\frac{n!}{r!(n - r)!} = \\left( \\frac{n}{r} \\right)$",
+          "$C_{n}^{r}$=$C_{n}^{n - r}$",
+          "$\\left( \\frac{n}{0} \\right)$=1，$\\left( \\frac{n}{1} \\right)$=n，$\\left( \\frac{n}{n} \\right)$=1，$\\left( \\frac{n}{r} \\right)$=$\\left( \\frac{n}{n - r} \\right)$"
+        ]
+      },
+      {
+        "category": "其他特殊题型和技巧",
+        "points": [
+          "含有相同元素的排列：大范围中元素有顺序（排列），小范围去顺序（组合）。",
+          "分组排列：相同元素的升级版，先大范围排列，对大范围分组，再逐个去顺序；或者先分组，按组合来算。",
+          "递增数和递减数：如果一个数字的每个数字都大于紧挨着它的左边的数字（如果有的话），那么这个数字叫做递增数，如1234；反之，则为递减数。",
+          "涂色问题：先确定哪些区域不相邻，可以用一样的颜色。"
+        ]
+      }
+    ],
+    "formulas": [
+      "$n_{k}$",
+      "$C_{n}^{r}$",
+      "$2! = 2$",
+      "$C(5,3) = \\frac{5!}{3!(5-3)!} = \\frac{5 \\times 4 \\times 3}{3 \\times 2 \\times 1} = 10$",
+      "$4! = 24$",
+      "$C_{n}^{n - r}$",
+      "$C(8,5) = \\frac{8!}{5!3!} = 56$",
+      "$E_{2}$",
+      "$n_{1} + n_{2} + \\ldots + n_{k}$",
+      "$C(3,1) \\times C(2,1) = 3 \\times 2 = 6$"
+    ],
+    "concepts": [
+      "例题4",
+      "例题5",
+      "例题1",
+      "例题6",
+      "解",
+      "例题7",
+      "例题10",
+      "例题3",
+      "例题8",
+      "例题2"
+    ]
+  },
+  {
+    "lesson_num": 15,
+    "title": "第十五讲 概率",
+    "key_points": [
+      {
+        "category": "Lesson 15 Probability",
+        "points": []
+      },
+      {
+        "category": "古典概率",
+        "points": [
+          "概率的性质：",
+          "基本概率公式"
+        ]
+      },
+      {
+        "category": "基本几何概率公式",
+        "points": [
+          "几何概率与基础概率的概念完全相同，唯一的区别在于我们处理的是几何图形而非\"数字\"。",
+          "基础概率公式转化为："
+        ]
+      },
+      {
+        "category": "概率的一般加法法则",
+        "points": [
+          "对于任意两个事件A和B:",
+          "如果A和B互斥（$P(A \\cap B) = 0$）:",
+          "概率的一般加法法则（适用于三个事件）:"
+        ]
+      },
+      {
+        "category": "概率的一般乘法法则",
+        "points": [
+          "对于任意两个事件A和B:",
+          "如果A和B是独立事件，如果事件A的结果不影响事件B的结果，则称A和B为独立事件。此时："
+        ]
+      }
+    ],
+    "formulas": [
+      "$P(A或B) = P(A \\cup B) = P(A) + P(B)$",
+      "$\n\n**例题8**：从1到10中随机选一个数，求选到质数的概率。\n\n**解**：所有可能结果：1, 2, 3, 4, 5, 6, 7, 8, 9, 10（共10种）\n质数结果：2, 3, 5, 7（共4种）\n概率 = $",
+      "$概率 = \\frac{事件发生的可能结果数}{所有可能结果数}$",
+      "$\n\n    注：两个事件如果不可能同时发生，则称为互斥事件。\n\n3.  概率的一般加法法则（适用于三个事件）:\n\n    $",
+      "$ 种\n和为7的结果：(1,6), (2,5), (3,4), (4,3), (5,2), (6,1)（共6种）\n概率 = $",
+      "$，其中$",
+      "$= P(A) + P(B) + P(c) - P(A \\cap B) - P(B \\cap C) - P(A \\cap C) + P(A \\cap B \\cap C)$",
+      "$\n\n**例题2**：掷一个骰子，求掷出偶数的概率。\n\n**解**：所有可能结果：1, 2, 3, 4, 5, 6（共6种）\n偶数结果：2, 4, 6（共3种）\n概率 = $",
+      "$\n\n或者：$",
+      "$\n两次都抽到红球的概率 = $"
+    ],
+    "concepts": [
+      "例题4",
+      "例题5",
+      "例题1",
+      "例题6",
+      "解",
+      "例题7",
+      "例题10",
+      "例题3",
+      "例题8",
+      "例题2"
+    ]
+  },
+  {
+    "lesson_num": 16,
+    "title": "第十六讲 有理数、无理数和幂",
+    "key_points": [
+      {
+        "category": "Lesson 16 Rational number, irrational number and power notations",
+        "points": []
+      },
+      {
+        "category": "有理数和无理数",
+        "points": [
+          "有理数：如果一个数可以表示为$\\frac{m}{n}$（m和n是整数，且n$\\neq$`<!-- -->`{=html}0），那么这个数就是有理数。",
+          "无理数：如果一个数不能表示为$\\frac{m}{n}$（m和n是整数，且n$\\neq$`<!-- -->`{=html}0），那么这个数就是无理数。或者说：无限不循环小数称为无理数。"
+        ]
+      },
+      {
+        "category": "数轴、绝对值、相反数和倒数",
+        "points": [
+          "数轴三要素：原点、正方向、单位长度",
+          "一个数的绝对值，表示这个数在数轴上到原点的距离。",
+          "若a和b互为相反数，则a+b=0；反之，也成立。",
+          "若a和b互为倒数，则ab=1；反之，也成立。"
+        ]
+      },
+      {
+        "category": "平方根、算术平方根和算术基本运算",
+        "points": [
+          "\"$\\sqrt{}$\"表示对一个数或代数式进行开方运算，若$a^{2} = n$，则$\\sqrt{n} = a(a \\geq 0)$。",
+          "平方根：若$a^{2} = n$，则a是n的平方根。",
+          "算术平方根：一个数（非负）的两个平方根中，非负的那个平方根也叫算术平方根。",
+          "最简二次根式：被开方数不含字母；被开方数中不含能开得尽方的因数或因式；分母中不含根式，满足上述三个条件的二次根式，叫做最简二次根式。",
+          "加减法：先把二次根式化简，然后把被开方数相同的二次根式（即同类二次根式）的系数相加减，被开方数不变。"
+        ]
+      },
+      {
+        "category": "幂",
+        "points": [
+          "n个相同的数a相乘的运算，叫做乘方，记作$a^{n}$，乘方的结果叫做幂（power）。",
+          "同底数幂法则：同底数幂相乘除，原来的底数作底数，指数的和或差作指数。",
+          "同指数幂法则：同指数幂相乘除，指数不变，底数相乘除。",
+          "幂的乘方法则：幂的乘方，底数不变，指数相乘。",
+          "积的乘方法则：积的乘方，先把积中的每一个因数分别乘方，再把所得的幂相乘。"
+        ]
+      }
+    ],
+    "formulas": [
+      "$\n\n**例题6**：计算 $",
+      "$ 的值。\n\n**解**：$",
+      "$）\n\n**例题4**：计算 $",
+      "$|a|$",
+      "$ 和 $",
+      "$，其中$",
+      "$\n\n7.  负整数指数幂法则：$",
+      "$。\n\n**解**：\n- $",
+      "$）\n- $",
+      "$（负数的绝对值等于它的相反数）\n$"
+    ],
+    "concepts": [
+      "例题4",
+      "例题5",
+      "例题1",
+      "例题6",
+      "解",
+      "例题7",
+      "例题10",
+      "例题3",
+      "例题8",
+      "例题2"
+    ]
+  },
+  {
+    "lesson_num": 17,
+    "title": "第十七讲 余数",
+    "key_points": [
+      {
+        "category": "Lesson 17 Remainder",
+        "points": []
+      },
+      {
+        "category": "基本概念",
+        "points": [
+          "定义：对于b$\\geq 2$，若a-r能被b整除，则记作b丨a-r。",
+          "定理1：存在唯一的一对整数(q,r)，使得以下任一表达式成立：a=qb+r或$\\frac{a}{b} = q + \\frac{r}{b}$，其中：a和b是整数，且b\\>0；q称为商（quotient）；r称为余数（remainder），且满足0≤r\\<b。"
+        ]
+      },
+      {
+        "category": "余数的性质",
+        "points": [
+          "可加性:和的余数等于余数的和(的余数)。",
+          "可乘性:积的余数等于余数的积(的余数)。",
+          "可减性:差的余数等于余数的差。不够减，加除数",
+          "可乘方性:乘方的余数等于余数的乘方 (的余数)"
+        ]
+      },
+      {
+        "category": "同余定理",
+        "points": [
+          "同余：若两个正整数",
+          "同余定理：若a、b模m同余，则a与b的差能被m整除。",
+          "两个给定的数相除，余数相同的最大数等于这两个数的差。",
+          "减同余、加同补"
+        ]
+      }
+    ],
+    "formulas": [
+      "$1234$",
+      "$2^5 \\div 7 = 4 \\cdots 4$",
+      "$2^7 \\div 7 = 18 \\cdots 2$",
+      "$23 \\equiv 37 \\pmod{7}$",
+      "$37 \\div 7 = 5 \\cdots 2$",
+      "$(23 + 45)$",
+      "$(2 \\times 3) \\div 5 = 6 \\div 5 = 1 \\cdots 1$",
+      "$8 \\div 5 = 1 \\cdots 3$",
+      "$x \\equiv 3 \\pmod{5}$",
+      "$4^2 = 16 \\equiv 6 \\pmod{10}$"
+    ],
+    "concepts": [
+      "例题4",
+      "例题5",
+      "例题1",
+      "例题6",
+      "解",
+      "例题7",
+      "例题3",
+      "例题2"
+    ]
+  },
+  {
+    "lesson_num": 18,
+    "title": "第十八讲 圆与扇形",
+    "key_points": [
+      {
+        "category": "Lesson 18 Circle and Sector",
+        "points": []
+      },
+      {
+        "category": "Circle 圆",
+        "points": [
+          "四大要素："
+        ]
+      },
+      {
+        "category": "Length of Arc and Area of Sector 弧的长度和扇形的面积",
+        "points": [
+          "求弧长和扇形面积",
+          "优弧和劣弧"
+        ]
+      },
+      {
+        "category": "Center Angle and Inscribed Angle 圆心角和圆周角",
+        "points": [
+          "![](media/image4.png){width=\"1.6979166666666667in\"",
+          "![](media/image6.png){width=\"1.2236111111111112in\"",
+          "定理1------圆周角定理："
+        ]
+      },
+      {
+        "category": "Chord and its Perpendicular bisector 弦和它的垂直平分线",
+        "points": [
+          "![](media/image9.png){width=\"1.6715277777777777in\"",
+          "定理2------垂径定理：",
+          "定理3：",
+          "![](media/image10.png){width=\"1.4645833333333333in\""
+        ]
+      },
+      {
+        "category": "Tangent and its Perpendicular radius 切线和它的垂直半径",
+        "points": [
+          "Tangent切线：与圆有且仅有一点相交的直线。",
+          "![](media/image11.png){width=\"1.9381944444444446in\"",
+          "定理6：",
+          "定理7："
+        ]
+      },
+      {
+        "category": "Funky Area from Tangent circles and Other Combined figures (e.g. Circular segment)相切圆和其他叠加图形的面积（如弓形等）",
+        "points": [
+          "Tangent Circles 相切圆：两个圆在一个且只有一个点上相互接触。",
+          "Internally tangent 两圆内切：圆心距等于半径差。（如下左图）",
+          "Circular segment 弓形：弦AB和圆之间的阴影区域。"
+        ]
+      }
+    ],
+    "formulas": [
+      "$\\frac{\\theta}{360} = \\frac{12}{36} = \\frac{1}{3}$",
+      "$\\frac{1}{2}$",
+      "$l = 2\\pi r$",
+      "$3 + 5 = 8$",
+      "$d^{2}$",
+      "$AB\\bot CD$",
+      "$\\pi r^2 = \\pi \\times 5^2 = 25\\pi$",
+      "$12 = 36 \\times \\frac{\\theta}{360}$",
+      "$\\pi r^2 \\times \\frac{\\theta}{360} = \\pi \\times 6^2 \\times \\frac{60}{360} = 6\\pi$",
+      "$\\theta$"
+    ],
+    "concepts": [
+      "例题4",
+      "例题5",
+      "例题1",
+      "例题6",
+      "解",
+      "例题7",
+      "例题3",
+      "例题8",
+      "例题2"
+    ]
+  },
+  {
+    "lesson_num": 19,
+    "title": "Logic",
+    "key_points": [
+      {
+        "category": "Lesson 19 Logic",
+        "points": [
+          "命题：一个命题是要么真要么假，但不可能同时为真和假的句子。",
+          "Negation 命题的否定：",
+          "Converse,Inverse and Contrapositive 逆命题，否命题和逆反命题：",
+          "Logically equivalent pair of statements 逻辑等价命题：",
+          "Not logically equivalent pair of statements(adjacent)"
+        ]
+      }
+    ],
+    "formulas": [],
+    "concepts": [
+      "例题4",
+      "例题5",
+      "例题1",
+      "Problem solving skills 解题技巧",
+      "解",
+      "第十九讲 逻辑推理",
+      "例题3",
+      "一、Statements 命题",
+      "例题2"
+    ]
+  },
+  {
+    "lesson_num": 2,
+    "title": "第二讲 角与角度",
+    "key_points": [
+      {
+        "category": "Lesson 2 Angle",
+        "points": []
+      },
+      {
+        "category": "Classification of Angles 角的种类",
+        "points": [
+          "锐角 Acute Angle：在0°到90°之间的角。",
+          "直角 Right Angle：等于90°的角。",
+          "钝角 Obtuse Angle：在90°到180°之间的角。",
+          "平角 Straight Angle：等于180°的角。",
+          "对顶角的度数相等。"
+        ]
+      },
+      {
+        "category": "Complementary Angles and Supplementary Angles 互余角和互补角",
+        "points": [
+          "互余角 complementary",
+          "互补角 supplementary",
+          "**Sum of Interior Angles of Triangle and Polygon",
+          "三角形的内角和：等于一个平角的度数，即180°。",
+          "推论：$\\angle D = \\angle A + \\angle B + \\angle C$"
+        ]
+      },
+      {
+        "category": "Isosceles Triangle and Equilateral Triangle 等腰三角形和等边三角形",
+        "points": [
+          "等腰三角形 Isosceles Triangle：至少有两条相等边的三角形。",
+          "等边三角形 Equilateral Triangle：三条边都相等的三角形。",
+          "**Principles of Exterior Angles of Triangle 三角形的外角定理**",
+          "定理1：三角形的每个外角都等于其不相邻的两个内角的和。",
+          "定理2：三角形的三个外角之和为360°。"
+        ]
+      }
+    ],
+    "formulas": [
+      "$\\angle D = \\angle A + \\angle B + \\angle C$",
+      "$180 \\times (n - 2){^\\circ}$"
+    ],
+    "concepts": [
+      "例题4",
+      "例题5",
+      "例题1",
+      "解",
+      "例题3",
+      "例题2"
+    ]
+  },
+  {
+    "lesson_num": 20,
+    "title": "第二十讲 长方体与正方体",
+    "key_points": [
+      {
+        "category": "Lesson 20 Cuboid and Cube",
+        "points": [
+          "**Rectangular solid 长方体**",
+          "Volume,$V$ 体积：",
+          "Surface area,$S$ 表面积：",
+          "**Views 视图**",
+          "THREE-DIMENSIONAL FIGURE 三视图："
+        ]
+      }
+    ],
+    "formulas": [
+      "$ 表面积：\n\n    $",
+      "$S = 2(LW + WH + HL)$",
+      "$\n\n    Note：对于正方体，$",
+      "$.\n\n<!-- -->\n\n2.  **Views 视图**\n\n<!-- -->\n\n1.  THREE-DIMENSIONAL FIGURE 三视图：\n\n    一个三维图形可以用它的三个视图来表示:正视图、侧视图和俯视图。\n\n    要画出俯视图，想象一下像鸟一样飞到三维图形的上方，然后直视它。如果你飞到金字塔上方并向下看，你将看到的不仅仅是顶点，你将看到图形底部的轮廓以及通向底部四角的四条边。对于底视图，想象躺在三维图形的下面，直视上方。对于侧视图，想象在图形周围漂浮，并拍下你直接面对每个侧面时看到的东西。\n\n2.  Draw the three-dimensional figure giving three views\n    根据给出的三视图画出立体图形：\n\n    一个实体图形的不同视图被展示出来。一个视图被称为一个视角。你可以根据三个不同的视图来画一个三维图形。\n\n<!-- -->\n\n3.  **NET OF A CUBE 正六面体的展开图**\n\n<!-- -->\n\n1.  正六面体的展开图的几种形状：\n\n    ![](media/image5.png){width=\"5.7555555555555555in\"\n    height=\"2.984027777777778in\"}\n\n    例如：\n\nOne-four-one means that if the expansion diagram is divided into three\ncolumns, the middle column has four squares and one on each side.\n\n1-4-1 意味着把展开图分成三列的话中间这列有四个正方形而两边各一个。\n\n4.  **Coloring problem 染色问题**\n\n    染3面：八个角上\\\n    \\\n    \\\n    染2面：每条棱上（要除去角）\\\n    \\\n    \\\n    染1面：每个面上（要除去棱）\\\n    \\\n    \\\n    染0面：![](media/image6.png){width=\"3.1868055555555554in\"\n    height=\"3.2756944444444445in\"}正方体内部\n\n## 例题\n\n**例题1**：一个长方体的长、宽、高分别是5厘米、4厘米、3厘米，求体积和表面积。\n\n**解**：体积 = $",
+      "$ 立方厘米\n\n**例题5**：一个边长为3的正方体，被分割成27个边长为1的小正方体。如果给这个大正方体的表面染色，求：\n(1) 三面染色的小正方体个数\n(2) 两面染色的小正方体个数\n(3) 一面染色的小正方体个数\n(4) 没有染色的小正方体个数\n\n**解**：\n(1) 三面染色：在8个顶点处，共8个\n(2) 两面染色：在12条棱上，每条棱有1个（除去两个顶点），共 $",
+      "$ 厘米\n\n**例题4**：一个正方体的表面积是150平方厘米，求体积。\n\n**解**：设棱长为a，则：\n$",
+      "$V = LWH$",
+      "$ 平方厘米\n\n**例题2**：一个正方体的棱长是6厘米，求体积和表面积。\n\n**解**：体积 = $",
+      "$ 立方厘米\n表面积 = $",
+      "$V$"
+    ],
+    "concepts": [
+      "NET OF A CUBE 正六面体的展开图",
+      "例题4",
+      "例题5",
+      "Rectangular solid 长方体",
+      "例题1",
+      "例题6",
+      "Views 视图",
+      "解",
+      "例题2",
+      "例题3"
+    ]
+  },
+  {
+    "lesson_num": 21,
+    "title": "第二十一讲 不等式",
+    "key_points": [
+      {
+        "category": "Lesson 21 Inequality",
+        "points": [
+          "The concept of inequality 不等式的概念：",
+          "Linear inequality with one unknown number 含一个未知数的线性不等式：",
+          "The solution of inequality 不等式的解：",
+          "The solution set of inequality 不等式的解集：",
+          "The properties of inequality 不等式的性质："
+        ]
+      }
+    ],
+    "formulas": [
+      "$\n所以 $",
+      "$ 的解集。\n\n**解**：$",
+      "$\\frac{x}{2} \\leq 5 - 3$",
+      "$3x > 7 + 5$",
+      "$\\frac{a}{c}\\  < \\ \\frac{b}{c}$",
+      "$3x > 12$",
+      "$\n\n**例题7**：求不等式 $",
+      "$-2x > 4$",
+      "$\n\n**解**：解第一个不等式：$",
+      "$3x - 5 > 7$"
+    ],
+    "concepts": [
+      "例题4",
+      "例题5",
+      "例题1",
+      "例题6",
+      "解",
+      "例题7",
+      "Inequality set 不等式组",
+      "例题3",
+      "例题2"
+    ]
+  },
+  {
+    "lesson_num": 22,
+    "title": "第二十二讲 一次函数",
+    "key_points": [
+      {
+        "category": "Lesson 22 Linear Function",
+        "points": [
+          "A plane Cartesian coordinate system 平面直角坐标系：",
+          "Quadrant象限:",
+          "The coordinates of the point 点的坐标:",
+          "**Function and Linear function 函数与一次函数**",
+          "Definition of function 函数的定义："
+        ]
+      }
+    ],
+    "formulas": [
+      "$2k + b - (k + b) = 5 - 3$",
+      "$b = 0$",
+      "$2k + b = 5$",
+      "$y = 4x - 2$",
+      "$\\frac{1}{2}$",
+      "$5 = k \\times 2 + b$",
+      "$y = kx + b$",
+      "$x$",
+      "$(0，b)$",
+      "$k + b = 3$"
+    ],
+    "concepts": [
+      "Function and Linear function 函数与一次函数",
+      "例题4",
+      "例题5",
+      "一、Coordinate and quadrant 坐标与象限",
+      "例题1",
+      "例题6",
+      "解",
+      "例题7",
+      "例题3",
+      "例题8"
+    ]
+  },
+  {
+    "lesson_num": 23,
+    "title": "第二十三讲 基础行程问题",
+    "key_points": [
+      {
+        "category": "Lesson 23 Basic Distance Problems",
+        "points": [
+          "相遇问题:路程和=速度和×相遇时间",
+          "追及问题:路程差=速度差×追及时间",
+          "平均速度:平均速度=总路程÷总时间"
+        ]
+      }
+    ],
+    "formulas": [
+      "$1000 \\div 20 = 50$",
+      "$\\frac{S}{6}$",
+      "$2S$",
+      "$2S \\div \\frac{5S}{12} = 2S \\times \\frac{12}{5S} = \\frac{24}{5} = 4.8$",
+      "$\\frac{S}{6} + \\frac{S}{4} = \\frac{2S + 3S}{12} = \\frac{5S}{12}$",
+      "$240 \\div 4 = 60$",
+      "$5 \\times 3 = 15$",
+      "$15 \\div (15 - 10) = 15 \\div 5 = 3$",
+      "$400 \\div (5 - 3) = 400 \\div 2 = 200$",
+      "$15 \\times 1 = 15$"
+    ],
+    "concepts": [
+      "例题4",
+      "例题5",
+      "一、行程三要素:路程(S)、速度(V)、时间(T)",
+      "例题1",
+      "例题6",
+      "解",
+      "例题7",
+      "例题3",
+      "例题2"
+    ]
+  },
+  {
+    "lesson_num": 24,
+    "title": "第二十四讲 比例行程问题",
+    "key_points": [
+      {
+        "category": "Lesson 24 Proportional Distance Problem",
+        "points": [
+          "**Proportional relationships in journey problems",
+          "**Use proportions to solve travel problems 比例解行程问题**",
+          "当两个物体运行速度在所讨论的路线上保持不变时，经过同一段时间后，他们走过的路程之比就等于他们的速度之比。",
+          "当两个物体运行速度在所讨论的路线上保持不变时，走过相同的路程时，两个物体所用的时间之比等于他们速度的反比。"
+        ]
+      }
+    ],
+    "formulas": [
+      "$s$",
+      "$\\frac{v_{甲}}{v_{乙}}\\  = \\ \\frac{t_{甲}}{t_{乙}}$",
+      "$4 \\times 30 = 120$",
+      "$t = 3$",
+      "$2:3$",
+      "$t_{甲}\\  = \\ \\frac{s_{甲}}{v_{甲}}$",
+      "$\\frac{60}{x} = \\frac{2}{1}$",
+      "$300 \\div 5 = 60$",
+      "$2:1$",
+      "$s_{甲}\\  = \\ s_{乙}\\  = \\ s$"
+    ],
+    "concepts": [
+      "例题4",
+      "例题5",
+      "例题1",
+      "例题6",
+      "解",
+      "Use proportions to solve travel problems 比例解行程问题",
+      "例题3",
+      "例题2"
+    ]
+  },
+  {
+    "lesson_num": 25,
+    "title": "第二十五讲 圆柱和圆锥",
+    "key_points": [
+      {
+        "category": "Lesson 25 Circular Column and Cone",
+        "points": [
+          "**Circular Column 圆柱**",
+          "Definition 定义：",
+          "The unfolding of a circular column圆柱的展开：",
+          "The surface area of a circular column 圆柱的表面积：",
+          "Volume of a circular column 圆柱的体积："
+        ]
+      }
+    ],
+    "formulas": [
+      "$S_{圆柱}\\  = \\ S_{上}\\  + \\ S_{下}\\  + \\ S_{侧\\ } = 2\\pi r^{2} + 2\\pi rh$",
+      "$:the perpendicular height of the cone\n\n    R：圆锥的底面半径；l：圆锥的斜高；ℎ：圆锥的垂直高度\n\n    （$",
+      "$:the slant height of the cone\n\n    $",
+      "$V\\  = \\pi R^{2}h = \\frac{1}{4}\\pi D^{2}h$",
+      "$ 立方厘米（约301.59立方厘米）\n\n**例题4**：一个圆锥的底面半径是5厘米，高是12厘米，求斜高和表面积。\n\n**解**：斜高 = $",
+      "$ 立方厘米\n\n**例题6**：一个圆柱的侧面积是 $",
+      "$ of the volume of the\n    cylinder of the same radius and height.\n\n    注：锥体的体积是同半径和高度圆柱体体积的 $",
+      "$：圆锥的斜高；ℎ：圆锥的垂直高度\n\n    （$",
+      "$ 厘米\n体积 = $",
+      "$:the radius of the circular base of the cone\n\n    $"
+    ],
+    "concepts": [
+      "例题4",
+      "例题5",
+      "例题1",
+      "Circular Column 圆柱",
+      "例题6",
+      "Cone 圆锥",
+      "解",
+      "例题7",
+      "例题3",
+      "例题2"
+    ]
+  },
+  {
+    "lesson_num": 3,
+    "title": "第三讲 方程与方程组",
+    "key_points": [
+      {
+        "category": "Lesson 3 Equation",
+        "points": []
+      },
+      {
+        "category": "Property of equality 等式的性质",
+        "points": [
+          "等式的性质："
+        ]
+      },
+      {
+        "category": "Definition of Equation and Solution 方程和解的定义",
+        "points": [
+          "方程 Equation：",
+          "解 Solution：",
+          "**Univariate Linear Equation and its Solution 一元一次方程及求解**",
+          "定义：",
+          "方程的最简形式："
+        ]
+      },
+      {
+        "category": "Binary Linear Equation 二元一次方程",
+        "points": [
+          "定义：",
+          "**System of Linear Equations and its Solution 方程组及求解**",
+          "定义：",
+          "求解方法：",
+          "**Quadratic Equation and Finding Solution 一元二次方程及求解**"
+        ]
+      }
+    ],
+    "formulas": [
+      "$\\begin{cases}\nx + y = 10 \\\\\nx - y = 4\n\\end{cases}$",
+      "$x - 3 = 5$",
+      "$\n\n**解**：由第二个方程：$",
+      "$b = 0$",
+      "$。\n\n2.  平方根属性：\n\n    方程$",
+      "$\n所以 $",
+      "$\n\n**例题3**：解方程 $",
+      "$x = 7$",
+      "$0x = 5$",
+      "$\n\n**例题2**：解方程 $"
+    ],
+    "concepts": [
+      "例题4",
+      "例题5",
+      "例题1",
+      "解",
+      "Quadratic Equation and Finding Solution 一元二次方程及求解",
+      "例题3",
+      "例题2"
+    ]
+  },
+  {
+    "lesson_num": 4,
+    "title": "Divisibility",
+    "key_points": [
+      {
+        "category": "Lesson 4 Divisibility",
+        "points": []
+      },
+      {
+        "category": "整除",
+        "points": []
+      },
+      {
+        "category": "整除的基本概念",
+        "points": [
+          "定义：若整数 a 除以整数"
+        ]
+      },
+      {
+        "category": "常见数的整除规律：",
+        "points": [
+          "2：末位是偶数（0, 2, 4, 6, 8）",
+          "5：末位是0或5",
+          "4：末两位能被4整除",
+          "25：末两位能被25整除",
+          "8：末三位能被8整除"
+        ]
+      },
+      {
+        "category": "复合数的整除规律：",
+        "points": [
+          "如能被2和3整除，就能被6整除。",
+          "如能被2和5整除，就能被10整除",
+          "如能被3和4整除，就能被12整除",
+          "如能被2和7整除，就能被14整除",
+          "如能被3和5整除，就能被15整除"
+        ]
+      }
+    ],
+    "formulas": [
+      "$b \\neq 0$"
+    ],
+    "concepts": [
+      "例题4",
+      "例题5",
+      "例题1",
+      "例题6",
+      "解",
+      "例题7",
+      "例题10",
+      "例题3",
+      "例题8",
+      "例题2"
+    ]
+  },
+  {
+    "lesson_num": 5,
+    "title": "第五讲 质数与合数",
+    "key_points": [
+      {
+        "category": "Lesson 5 Prime and Composite Numbers",
+        "points": []
+      },
+      {
+        "category": "Introduction to Prime Numbers 质数的介绍",
+        "points": [
+          "质数：只能被1和它本身整除的数。（2, 3, 5, 7, 11, \\...）",
+          "合数：一个数除了能被1和它本身整除，还能被其他的数整除。"
+        ]
+      },
+      {
+        "category": "2 is the unique even prime number 2是独特的偶质数",
+        "points": [
+          "1既不是质数也不是合数。",
+          "最小的质数是2，最小的合数是4.",
+          "2是唯一的偶质数。",
+          "5是唯一一个个位为5的质数。",
+          "**To test if a number is a prime number 检验质数性质的方法**"
+        ]
+      },
+      {
+        "category": "Prime Factorization 分解质因数",
+        "points": [
+          "方法：短除法"
+        ]
+      }
+    ],
+    "formulas": [
+      "$k = 10$",
+      "$10^2 = 100 > 91$",
+      "$b = 2^2 \\times 3 \\times 7$",
+      "$k^2 > 91$",
+      "$a = 2^3 \\times 3^2 \\times 5$",
+      "$4 \\times 3 = 12$",
+      "$2^{\\min(3,2)} \\times 3^{\\min(2,1)} \\times 5^{\\min(1,0)} \\times 7^{\\min(0,1)}$",
+      "$k = 5$",
+      "$84 = 2^2 \\times 3 \\times 7$",
+      "$60 = 2^2 \\times 3 \\times 5$"
+    ],
+    "concepts": [
+      "例题4",
+      "例题5",
+      "To test if a number is a prime number 检验质数性质的方法",
+      "例题1",
+      "例题6",
+      "解",
+      "例题3",
+      "例题2"
+    ]
+  },
+  {
+    "lesson_num": 6,
+    "title": "第六讲 因数和倍数",
+    "key_points": [
+      {
+        "category": "Lesson 6 Factors and Multiples",
+        "points": []
+      },
+      {
+        "category": "Greatest Common Factor 最大公因数",
+        "points": [
+          "定义：",
+          "因数个数定理：",
+          "求最大公因数的方法：",
+          "分解质因数法",
+          "短除法"
+        ]
+      },
+      {
+        "category": "Least Common Multiple最小公倍数",
+        "points": [
+          "定义：",
+          "求最小公倍数的方法：",
+          "分解质因数法",
+          "短除法",
+          "**Relationship of LCM and GCF最大公因数和最小公倍数的关系**"
+        ]
+      }
+    ],
+    "formulas": [
+      "$20 = 2^2 \\times 5$",
+      "$p_{k}$",
+      "$b = 6n$",
+      "$24 = 2^3 \\times 3$",
+      "$18 = 2 \\times 3^2$",
+      "$n = {p_{1}}^{a}{p_{2}}^{b}{p_{3}}^{c}\\ldots{p_{k}}^{m}$",
+      "$6m \\times 6n = 432$",
+      "$30 = 2 \\times 3 \\times 5$",
+      "$12 = 2^2 \\times 3^1$",
+      "$(2+1) \\times (2+1) = 3 \\times 3 = 9$"
+    ],
+    "concepts": [
+      "例题4",
+      "例题5",
+      "例题1",
+      "例题6",
+      "解",
+      "例题7",
+      "Relationship of LCM and GCF最大公因数和最小公倍数的关系",
+      "例题3",
+      "例题2"
+    ]
+  },
+  {
+    "lesson_num": 7,
+    "title": "第七讲 分数与分数应用题",
+    "key_points": [
+      {
+        "category": "Lesson 7 Fraction and Fraction Word Problems",
+        "points": []
+      },
+      {
+        "category": "Classification of Fractions 分数的分类",
+        "points": [
+          "定义："
+        ]
+      },
+      {
+        "category": "Properties 性质",
+        "points": [
+          "等值分数 equivalent fraction：",
+          "分数的基本定理 Fundamental Law of Fraction：",
+          "最简分数：",
+          "分数加减法法则：",
+          "分数乘法法则：分子的乘积做分子，分母的乘积做分母。"
+        ]
+      },
+      {
+        "category": "Problem Solving Skills 解题技巧",
+        "points": [
+          "比较分数的大小：",
+          "连续分数求和常用公式：",
+          "连锁约分公式："
+        ]
+      },
+      {
+        "category": "Skills for Fraction Word Problems 分数应用题常用技巧",
+        "points": [
+          "A是B的几分之几：$A \\div B = \\frac{A}{B}$",
+          "A的几分之几是B：$A \\times (\\ \\ \\ \\ ) = B$ 或$B \\div (\\ \\ \\ \\ ) = A$",
+          "A比B多几分之几：$(A - B) \\div B = \\frac{A - B}{B}$"
+        ]
+      }
+    ],
+    "formulas": [
+      "$A = B \\times \\lbrack 1 + (\\ \\ \\ \\ )\\rbrack$",
+      "$\\frac{1}{1 \\times 2} + \\frac{1}{2 \\times 3} + \\frac{1}{3 \\times 4} + \\ldots + \\frac{1}{9 \\times 10}$",
+      "$\\frac{1}{2} \\times \\frac{2}{3} \\times \\frac{3}{4} \\times \\ldots \\times \\frac{n}{n + 1} = \\frac{1}{n + 1}$",
+      "$(A - B) \\div B = \\frac{A - B}{B}$",
+      "$\\frac{1}{2}$",
+      "$5 \\times 4 = 20$",
+      "$A \\times (\\ \\ \\ \\ ) = B$",
+      "$\\frac{2}{3} \\times \\frac{3}{4} = \\frac{1}{2}$",
+      "$3 \\times 7 = 21$",
+      "$21 > 20$"
+    ],
+    "concepts": [
+      "例题4",
+      "例题5",
+      "例题1",
+      "例题6",
+      "解",
+      "例题7",
+      "例题10",
+      "例题3",
+      "例题8",
+      "例题2"
+    ]
+  },
+  {
+    "lesson_num": 8,
+    "title": "第八讲 百分数与百分数应用题",
+    "key_points": [
+      {
+        "category": "Lesson 8 Percent and Percent Word Problems",
+        "points": []
+      },
+      {
+        "category": "Definition of Percent 百分数的定义",
+        "points": [
+          "定义：",
+          "与其他数的转换："
+        ]
+      },
+      {
+        "category": "Basic types of percent problems 百分比问题的基本类型",
+        "points": [
+          "b的c%是多少：$\\frac{x}{b} = \\frac{c}{100}$，得出$x = \\frac{c}{100}b$",
+          "b的百分之多少是a：$\\frac{a}{b} = \\frac{x}{100}$，得出$a = \\frac{x}{100}b$",
+          "多少的c%是a：$\\frac{a}{x} = \\frac{c}{100}$，得出$a = \\frac{c}{100}x$"
+        ]
+      },
+      {
+        "category": "Percent of change 变化的百分比",
+        "points": [
+          "b\\>a，即增长率：$\\frac{b - a}{a} \\times 100\\%$",
+          "a\\>b，即减少率：$\\frac{a - b}{a} \\times 100\\%$"
+        ]
+      }
+    ],
+    "formulas": [
+      "$x = \\frac{15 \\times 100}{60} = 25$",
+      "$a = \\frac{c}{100}x$",
+      "$\\frac{65 - 50}{50} \\times 100\\% = \\frac{15}{50} \\times 100\\% = 30\\%$",
+      "$\\frac{3}{4}$",
+      "$\\frac{x}{b} = \\frac{c}{100}$",
+      "$120 \\times (1 - 20\\%) = 120 \\times 0.8 = 96$",
+      "$x \\times 30\\% = 24$",
+      "$\\frac{15}{60} = \\frac{x}{100}$",
+      "$x = \\frac{c}{100}b$",
+      "$\\frac{b - a}{a} \\times 100\\%$"
+    ],
+    "concepts": [
+      "例题4",
+      "例题5",
+      "例题1",
+      "例题6",
+      "解",
+      "例题7",
+      "例题3",
+      "例题8",
+      "例题2",
+      "例题9"
+    ]
+  },
+  {
+    "lesson_num": 9,
+    "title": "第九讲 比例与比例应用题",
+    "key_points": [
+      {
+        "category": "Lesson 9 Ratio and Ratio Word Problems",
+        "points": []
+      },
+      {
+        "category": "Concept of Ratio 比的概念",
+        "points": [
+          "定义：",
+          "二者区别：",
+          "二者联系："
+        ]
+      },
+      {
+        "category": "Simplification of ratio 比的化简",
+        "points": [
+          "a:b最后结果都会经过化简，即a和b同时除以他们的最大公约数。最后的结果a:b中a和b一定是互质的。"
+        ]
+      },
+      {
+        "category": "Property of Ratio比的性质",
+        "points": [
+          "a:b=c:d，则ad=bc。"
+        ]
+      },
+      {
+        "category": "Conversion of Percentage and Ratio 百分比、比和分数的转化",
+        "points": [
+          "a% = a:100 = a$\\div$`<!-- -->`{=html}100 = $\\frac{a}{100}$"
+        ]
+      },
+      {
+        "category": "Work Problems of Ratio比例应用题",
+        "points": [
+          "比例应用题往往包含不变的数量关系，转化成比例表达式是解题的关键。"
+        ]
+      },
+      {
+        "category": "Continued Ratio 连比",
+        "points": [
+          "连比的定义：三个或更多数量的比叫做连比。",
+          "连比的性质："
+        ]
+      }
+    ],
+    "formulas": [
+      "$4k$",
+      "$x = 5k$",
+      "$3x = 36$",
+      "$5 \\times 3 = 15$",
+      "$x = 5 \\times 4 = 20$",
+      "$k = 3$",
+      "$3 \\times 8 = 4 \\times 6$",
+      "$y = 3k$",
+      "$x + y = 32$",
+      "$5k$"
+    ],
+    "concepts": [
+      "例题4",
+      "例题5",
+      "例题1",
+      "例题6",
+      "解",
+      "例题7",
+      "例题3",
+      "例题8",
+      "例题2"
+    ]
+  }
+]

@@ -694,6 +694,12 @@ def ocr_manage_page():
     return render_template('ocr_manage.html')
 
 
+@app.route('/amc8-knowledge')
+def amc8_knowledge_page():
+    """AMC8 知识讲义页面"""
+    return render_template('amc8_knowledge.html')
+
+
 @app.route('/api/ocr/analyze', methods=['POST'])
 def api_ocr_analyze():
     """API: OCR 题目分析"""

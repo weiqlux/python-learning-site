@@ -46,6 +46,19 @@
             </div>
         </section>
 
+        <section class="category" style="background: linear-gradient(135deg, #11998e15 0%, #38ef7d15 100%); padding: 30px; border-radius: 12px; border-left: 5px solid #11998e; margin-top: 30px;">
+            <h2 style="color: #11998e;">📚 AMC8 知识讲义</h2>
+            <p style="margin-bottom: 20px;">系统整理 AMC8 数学竞赛 25 个核心知识点，包含公式、概念、解题技巧，助你高效备考！</p>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <a href="/amc8-knowledge" class="lesson-card" style="display: inline-block; width: auto; padding: 15px 25px; text-decoration: none; flex: 1; min-width: 200px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white;">
+                    <h3 style="margin: 0;">📖 查看讲义 →</h3>
+                </a>
+                <a href="/ocr-manage" class="lesson-card" style="display: inline-block; width: auto; padding: 15px 25px; text-decoration: none; flex: 1; min-width: 200px;">
+                    <h3 style="margin: 0;">📝 配套题库 →</h3>
+                </a>
+            </div>
+        </section>
+
         {% for category_key, category in tutorials.items() %}
         <section class="category">
             <h2>{{ category.title }}</h2>

@@ -1,0 +1,11 @@
+# AMC8 题目分析工具 - 依赖
+
+# OCR 识别（可选，如使用 API 可不安装）
+pytesseract>=0.3.10
+Pillow>=10.0.0
+
+# HTTP 请求
+requests>=2.31.0
+
+# 可选：图像处理增强
+# opencv-python>=4.8.0
