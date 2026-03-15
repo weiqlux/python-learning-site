@@ -23,13 +23,35 @@ if not smart_add_logger.handlers:
 # 使用 question_manager 添加题目
 from question_manager import add_question
 
-def encode_image_to_base64(image_path: str) -> str:
-    """将图片编码为 base64"""
+def encode_image_to_base64(image_path: str, max_size: int = 1024) -> str:
+    """将图片编码为 base64，如果图片太大则压缩"""
     smart_add_logger.info(f"编码图片: {image_path}")
-    with open(image_path, 'rb') as f:
-        data = f.read()
-        smart_add_logger.info(f"图片大小: {len(data)} bytes")
-        return base64.b64encode(data).decode('utf-8')
+    
+    from PIL import Image
+    import io
+    
+    # 打开图片
+    img = Image.open(image_path)
+    
+    # 转换为 RGB（处理 PNG 透明通道等）
+    if img.mode in ('RGBA', 'P'):
+        img = img.convert('RGB')
+    
+    # 如果图片太大，等比例缩放
+    width, height = img.size
+    if width > max_size or height > max_size:
+        ratio = min(max_size / width, max_size / height)
+        new_size = (int(width * ratio), int(height * ratio))
+        img = img.resize(new_size, Image.Resampling.LANCZOS)
+        smart_add_logger.info(f"图片已缩放至: {new_size}")
+    
+    # 压缩质量并编码
+    buffer = io.BytesIO()
+    img.save(buffer, format='JPEG', quality=85, optimize=True)
+    data = buffer.getvalue()
+    
+    smart_add_logger.info(f"图片大小: {len(data)} bytes")
+    return base64.b64encode(data).decode('utf-8')
 
 def analyze_with_vlm(image_path: str, prompt: str = None) -> Dict:
     """
@@ -105,18 +127,39 @@ def analyze_with_vlm(image_path: str, prompt: str = None) -> Dict:
         })
         smart_add_logger.info(f"请求体大小: {len(request_body)} bytes")
         
-        # 发送 HTTPS 请求
+        # 发送 HTTPS 请求（带重试）
         smart_add_logger.info("发送 API 请求...")
-        conn = http.client.HTTPSConnection("dashscope.aliyuncs.com", timeout=60)
-        headers = {
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json"
-        }
+        max_retries = 3
+        last_error = None
         
-        conn.request("POST", "/api/v1/services/aigc/multimodal-generation/generation", request_body, headers)
-        response = conn.getresponse()
-        response_body = response.read().decode('utf-8')
-        conn.close()
+        for attempt in range(max_retries):
+            try:
+                conn = http.client.HTTPSConnection("dashscope.aliyuncs.com", timeout=120)
+                headers = {
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json"
+                }
+                
+                conn.request("POST", "/api/v1/services/aigc/multimodal-generation/generation", request_body, headers)
+                response = conn.getresponse()
+                response_body = response.read().decode('utf-8')
+                conn.close()
+                
+                # 成功，跳出重试循环
+                break
+                
+            except (ConnectionResetError, BrokenPipeError) as e:
+                last_error = e
+                smart_add_logger.warning(f"连接重置，第 {attempt + 1} 次重试...")
+                if attempt < max_retries - 1:
+                    import time
+                    time.sleep(2 ** attempt)  # 指数退避
+                continue
+            except Exception as e:
+                raise  # 其他异常直接抛出
+        else:
+            # 所有重试都失败
+            raise last_error if last_error else Exception("未知错误")
         
         smart_add_logger.info(f"API 响应状态: {response.status}")
         smart_add_logger.debug(f"API 响应体: {response_body[:500]}")
