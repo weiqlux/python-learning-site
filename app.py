@@ -615,23 +615,38 @@ def smart_add_page():
 @app.route('/api/smart-add', methods=['POST'])
 def api_smart_add():
     """API: 智能添加题目（上传图片自动识别）"""
+    logger.info("收到智能添加题目请求")
+    
     if 'image' not in request.files:
+        logger.warning("请求缺少图片文件")
         return jsonify({'success': False, 'message': '请上传图片'}), 400
     
     file = request.files['image']
     if file.filename == '':
+        logger.warning("文件名为空")
         return jsonify({'success': False, 'message': '未选择文件'}), 400
     
     # 保存上传的图片
     filename = secure_filename(f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{file.filename}")
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     file.save(filepath)
+    logger.info(f"图片已保存: {filepath}")
     
     # 获取分类
     category = request.form.get('category', 'smart')
+    logger.info(f"分类: {category}")
+    
+    # 检查环境变量
+    api_key = os.environ.get('DASHSCOPE_API_KEY')
+    logger.info(f"API Key 配置状态: {'已配置' if api_key else '未配置'}")
     
     # 智能识别并添加
-    result = smart_add_question(filepath, category=category)
+    try:
+        result = smart_add_question(filepath, category=category)
+        logger.info(f"识别结果: success={result.get('success')}")
+    except Exception as e:
+        logger.exception("smart_add_question 执行异常")
+        result = {'success': False, 'error': str(e)}
     
     if result['success']:
         return jsonify({
@@ -642,6 +657,7 @@ def api_smart_add():
             'redirect': f"/translation-db/{result['question_id']}"
         })
     else:
+        logger.error(f"识别失败: {result.get('error')}, message: {result.get('message')}")
         # 删除上传的图片（如果识别失败）
         try:
             os.remove(filepath)

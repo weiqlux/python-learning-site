@@ -7,22 +7,39 @@ import json
 import base64
 import http.client
 import ssl
+import logging
 from datetime import datetime
 from typing import Dict, Optional
+
+# 配置日志
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('/tmp/smart_add.log', encoding='utf-8')
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # 使用 question_manager 添加题目
 from question_manager import add_question
 
 def encode_image_to_base64(image_path: str) -> str:
     """将图片编码为 base64"""
+    logger.info(f"编码图片: {image_path}")
     with open(image_path, 'rb') as f:
-        return base64.b64encode(f.read()).decode('utf-8')
+        data = f.read()
+        logger.info(f"图片大小: {len(data)} bytes")
+        return base64.b64encode(data).decode('utf-8')
 
 def analyze_with_vlm(image_path: str, prompt: str = None) -> Dict:
     """
     使用视觉语言模型分析图片（使用 HTTP 直接调用，无需 SDK）
     返回：原文、翻译、语法分析、重点词汇
     """
+    logger.info(f"开始分析图片: {image_path}")
+    
     if prompt is None:
         prompt = """
 请分析这张图片中的英文文本，完成以下任务：
@@ -50,10 +67,19 @@ def analyze_with_vlm(image_path: str, prompt: str = None) -> Dict:
 """
 
     # 读取并编码图片
-    image_base64 = encode_image_to_base64(image_path)
+    try:
+        image_base64 = encode_image_to_base64(image_path)
+    except Exception as e:
+        logger.error(f"图片编码失败: {e}")
+        return {
+            'error': f'图片编码失败：{str(e)}',
+            'message': '请检查图片文件是否有效'
+        }
     
     # 获取 API key
     api_key = os.environ.get('DASHSCOPE_API_KEY')
+    logger.info(f"API Key: {api_key[:20]}..." if api_key else "API Key 未设置")
+    
     if not api_key:
         return {
             'error': '缺少 DASHSCOPE_API_KEY 环境变量',
@@ -79,8 +105,10 @@ def analyze_with_vlm(image_path: str, prompt: str = None) -> Dict:
                 "result_format": "message"
             }
         })
+        logger.info(f"请求体大小: {len(request_body)} bytes")
         
         # 发送 HTTPS 请求
+        logger.info("发送 API 请求...")
         conn = http.client.HTTPSConnection("dashscope.aliyuncs.com", timeout=60)
         headers = {
             "Authorization": f"Bearer {api_key}",
@@ -92,9 +120,33 @@ def analyze_with_vlm(image_path: str, prompt: str = None) -> Dict:
         response_body = response.read().decode('utf-8')
         conn.close()
         
+        logger.info(f"API 响应状态: {response.status}")
+        logger.debug(f"API 响应体: {response_body[:500]}")
+        
         if response.status == 200:
             result_data = json.loads(response_body)
-            result_text = result_data['output']['choices'][0]['message']['content'][0]['text']
+            logger.info(f"API 响应结构: {list(result_data.keys())}")
+            
+            # 检查响应结构
+            if 'output' not in result_data:
+                logger.error(f"响应缺少 'output' 字段: {result_data}")
+                return {'error': 'API 响应格式异常', 'raw': response_body[:500]}
+            
+            if 'choices' not in result_data['output']:
+                logger.error(f"响应缺少 'choices' 字段: {result_data['output']}")
+                return {'error': 'API 响应格式异常', 'raw': response_body[:500]}
+            
+            content = result_data['output']['choices'][0]['message']['content']
+            logger.info(f"Content 类型: {type(content)}")
+            
+            # 多模态模型返回的是数组，需要提取文本
+            if isinstance(content, list):
+                result_text = content[0].get('text', '') if content else ''
+            else:
+                result_text = content
+            
+            logger.info(f"模型返回文本长度: {len(result_text)}")
+            logger.debug(f"模型返回文本: {result_text[:500]}")
             
             # 解析 JSON 结果
             try:
@@ -102,12 +154,16 @@ def analyze_with_vlm(image_path: str, prompt: str = None) -> Dict:
                 json_end = result_text.rfind('}') + 1
                 if json_start >= 0 and json_end > json_start:
                     json_str = result_text[json_start:json_end]
+                    logger.info(f"提取的 JSON 长度: {len(json_str)}")
                     return json.loads(json_str)
                 else:
+                    logger.error("无法从响应中提取 JSON")
                     return {'error': '无法解析模型返回结果', 'raw': result_text}
             except json.JSONDecodeError as e:
+                logger.error(f"JSON 解析失败: {e}")
                 return {'error': f'JSON 解析失败：{str(e)}', 'raw': result_text}
         else:
+            logger.error(f"API 调用失败: HTTP {response.status}, 响应: {response_body[:500]}")
             error_data = json.loads(response_body) if response_body else {}
             return {
                 'error': f'API 调用失败：HTTP {response.status}',
@@ -115,6 +171,7 @@ def analyze_with_vlm(image_path: str, prompt: str = None) -> Dict:
             }
             
     except Exception as e:
+        logger.exception("识别过程发生异常")
         return {
             'error': f'识别失败：{str(e)}',
             'message': '请检查 API 配置和网络连接'
@@ -132,8 +189,11 @@ def smart_add_question(image_path: str, category: str = "smart", auto_title: boo
     返回：
         添加结果（包含题目 ID 和分析结果）
     """
+    logger.info(f"开始智能添加题目: {image_path}, category={category}")
+    
     # 检查文件是否存在
     if not os.path.exists(image_path):
+        logger.error(f"图片文件不存在: {image_path}")
         return {
             'success': False,
             'error': '图片文件不存在',
@@ -141,14 +201,18 @@ def smart_add_question(image_path: str, category: str = "smart", auto_title: boo
         }
     
     # 调用视觉模型分析
+    logger.info("调用视觉模型分析...")
     analysis = analyze_with_vlm(image_path)
     
     if 'error' in analysis:
+        logger.error(f"分析失败: {analysis['error']}")
         return {
             'success': False,
             'error': analysis['error'],
             'message': analysis.get('message', '')
         }
+    
+    logger.info(f"分析成功，提取字段...")
     
     # 提取分析结果
     original = analysis.get('original', '')
@@ -159,7 +223,11 @@ def smart_add_question(image_path: str, category: str = "smart", auto_title: boo
     source = analysis.get('source_guess', '未知')
     title = analysis.get('title_suggestion', f'智能添加_{datetime.now().strftime("%Y%m%d_%H%M%S")}')
     
+    logger.info(f"提取结果: original={len(original)} chars, translation={len(translation)} chars")
+    logger.info(f"title={title}, source={source}")
+    
     if not original or not translation:
+        logger.error("未能识别出有效内容")
         return {
             'success': False,
             'error': '未能识别出有效内容',
@@ -168,6 +236,7 @@ def smart_add_question(image_path: str, category: str = "smart", auto_title: boo
     
     # 添加到题库
     try:
+        logger.info("添加到题库...")
         question_id = add_question(
             category=category,
             title=title,
@@ -180,6 +249,7 @@ def smart_add_question(image_path: str, category: str = "smart", auto_title: boo
             image_path=f"/static/uploads/{os.path.basename(image_path)}"
         )
         
+        logger.info(f"添加成功，题目 ID: {question_id}")
         return {
             'success': True,
             'question_id': question_id,
@@ -188,6 +258,7 @@ def smart_add_question(image_path: str, category: str = "smart", auto_title: boo
         }
         
     except Exception as e:
+        logger.exception("添加到题库失败")
         return {
             'success': False,
             'error': f'添加题目失败：{str(e)}',
