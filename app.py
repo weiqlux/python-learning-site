@@ -19,7 +19,8 @@ from smart_add import smart_add_question
 from ocr_analyzer import OCRQuestionAnalyzer
 from ocr_question_manager import (
     get_questions_by_filter, search_questions, get_all_subjects,
-    get_all_categories, get_all_lessons, get_statistics, record_answer
+    get_all_categories, get_all_lessons, get_statistics, record_answer,
+    get_question as get_ocr_question
 )
 
 # 配置日志
@@ -1079,7 +1080,7 @@ def api_ocr_export_pdf():
         # 获取题目详情
         questions = []
         for qid in question_ids:
-            q = get_question(qid)
+            q = get_ocr_question(qid)
             if q:
                 questions.append(q)
         
