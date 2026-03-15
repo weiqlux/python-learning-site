@@ -801,8 +801,13 @@
                     <title>AMC8 题目练习</title>
                     <style>
                         @media print {
-                            .no-print { display: none; }
-                            body { font-family: Arial, sans-serif; }
+                            .no-print { display: none !important; }
+                            body { 
+                                font-family: Arial, sans-serif;
+                                background: white !important;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
                         }
                         body { 
                             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
@@ -810,6 +815,7 @@
                             margin: 0 auto; 
                             padding: 20px;
                             line-height: 1.6;
+                            background: white;
                         }
                         .header { 
                             text-align: center; 
@@ -890,6 +896,25 @@
                         .print-btn:hover {
                             background: #764ba2;
                         }
+                        .action-btns {
+                            text-align: center;
+                            margin-top: 30px;
+                            padding: 20px;
+                        }
+                        .action-btns button {
+                            background: transparent;
+                            color: #667eea;
+                            border: 2px solid #667eea;
+                            padding: 12px 24px;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-size: 16px;
+                            margin: 0 5px;
+                        }
+                        .action-btns button:hover {
+                            background: #667eea;
+                            color: white;
+                        }
                     </style>
                 </head>
                 <body>
@@ -929,6 +954,10 @@
             });
             
             html += `
+                    <div class="action-btns no-print">
+                        <button onclick="window.print()">🖨️ 打印 / 保存为 PDF</button>
+                        <button onclick="window.close()">❌ 关闭</button>
+                    </div>
                 </body>
                 </html>
             `;
@@ -980,8 +1009,8 @@
             
             printContent += `
                     <div style="text-align: center; margin-top: 30px; padding: 20px;">
-                        <button onclick="location.reload()" style="background: #667eea; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 16px;">返回题库</button>
-                        <button onclick="window.print()" style="background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 16px; margin-left: 10px;">🖨️ 打印 / 保存为 PDF</button>
+                        <button onclick="window.print()" style="background: transparent; color: #667eea; border: 2px solid #667eea; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 16px;">🖨️ 打印 / 保存为 PDF</button>
+                        <button onclick="location.reload()" style="background: transparent; color: #667eea; border: 2px solid #667eea; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 16px; margin-left: 10px;">返回题库</button>
                     </div>
                 </div>
             `;
