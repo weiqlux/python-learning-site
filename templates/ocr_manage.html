@@ -795,15 +795,19 @@
             
             let html = `
                 <!DOCTYPE html>
-                <html>
+                <html style="background: white; background-color: white;">
                 <head>
                     <meta charset="UTF-8">
                     <title>AMC8 题目练习</title>
                     <style>
                         * { margin: 0; padding: 0; box-sizing: border-box; }
+                        html, body { 
+                            background: white !important;
+                            background-color: white !important;
+                        }
                         @media print {
                             .no-print { display: none !important; }
-                            body { 
+                            html, body { 
                                 font-family: Arial, sans-serif;
                                 background: white !important;
                                 background-color: white !important;
@@ -811,7 +815,7 @@
                                 print-color-adjust: exact;
                             }
                         }
-                        html, body { 
+                        body { 
                             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
                             max-width: 800px; 
                             margin: 0 auto; 
@@ -933,23 +937,23 @@
             questions.forEach((q, i) => {
                 const difficultyText = q.difficulty === 'easy' ? '简单' : q.difficulty === 'medium' ? '中等' : '困难';
                 html += `
-                    <div class="question">
-                        <div class="question-header">
+                    <div class="question" style="background: white;">
+                        <div class="question-header" style="background: white;">
                             <div class="question-num">${i + 1}</div>
                             <div class="question-meta">
                                 ${q.category || 'AMC8'} | ${q.lesson || '未分类'} | 难度：${difficultyText}
                             </div>
                         </div>
-                        <div class="question-content">
+                        <div class="question-content" style="background: white;">
                             <pre>${q.topic_text || '无题目内容'}</pre>
                         </div>
                         ${q.knowledge_points ? `
-                            <div class="knowledge-points">
+                            <div class="knowledge-points" style="background: #f0f8ff;">
                                 <strong>知识点：</strong>${q.knowledge_points}
                             </div>
                         ` : ''}
                         ${q.answer ? `
-                            <div class="answer">
+                            <div class="answer" style="background: #e8f5e9;">
                                 <strong>答案：</strong>${q.answer}
                             </div>
                         ` : ''}
@@ -958,7 +962,7 @@
             });
             
             html += `
-                    <div class="action-btns no-print">
+                    <div class="action-btns no-print" style="background: white;">
                         <button onclick="window.print()">🖨️ 打印 / 保存为 PDF</button>
                         <button onclick="window.close()">❌ 关闭</button>
                     </div>
@@ -1019,8 +1023,12 @@
                 </div>
             `;
             
-            // 替换页面内容
+            // 替换页面内容并强制白色背景
             document.body.innerHTML = printContent;
+            document.body.style.background = 'white';
+            document.body.style.backgroundColor = 'white';
+            document.documentElement.style.background = 'white';
+            document.documentElement.style.backgroundColor = 'white';
             
             // 自动触发打印
             setTimeout(() => {
