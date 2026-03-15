@@ -1,6 +1,6 @@
-Flask>=2.3.0
-requests>=2.31.0
-Pillow>=10.0.0
+Flask>=2.0.0
+requests>=2.25.0
+Pillow>=7.0.0,<8.0.0
 
 # OCR 可选依赖（如使用本地 Tesseract）
 # pytesseract>=0.3.10
