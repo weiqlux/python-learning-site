@@ -1349,9 +1349,22 @@
         // HTML 转义（防止 XSS，但保留 LaTeX 公式）
         function escapeHtml(text) {
             if (!text) return '';
+            // 先保护 LaTeX 公式中的特殊字符
+            let protected = text
+                .replace(/\\/g, '\x00BACKSLASH\x00')
+                .replace(/\$/g, '\x00DOLLAR\x00');
+            
+            // HTML 转义
             const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+            div.textContent = protected;
+            let escaped = div.innerHTML;
+            
+            // 恢复 LaTeX 公式标记
+            escaped = escaped
+                .replace(/\x00BACKSLASH\x00/g, '\\')
+                .replace(/\x00DOLLAR\x00/g, '$');
+            
+            return escaped;
         }
         
         // 渲染数学公式
