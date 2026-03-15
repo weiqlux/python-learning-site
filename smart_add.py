@@ -42,7 +42,8 @@ def encode_image_to_base64(image_path: str, max_size: int = 1024) -> str:
     if width > max_size or height > max_size:
         ratio = min(max_size / width, max_size / height)
         new_size = (int(width * ratio), int(height * ratio))
-        img = img.resize(new_size, Image.Resampling.LANCZOS)
+        # Pillow 7.x 使用 Image.LANCZOS
+        img = img.resize(new_size, Image.LANCZOS)
         smart_add_logger.info(f"图片已缩放至: {new_size}")
     
     # 压缩质量并编码
