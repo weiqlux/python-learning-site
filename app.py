@@ -1140,7 +1140,7 @@ if __name__ == '__main__':
     from werkzeug.serving import make_server
     logger.info("启动 Python 学习网站服务...")
     logger.info("监听地址：http://0.0.0.0:5000")
-    logger.info="按 Ctrl+C 或发送 SIGTERM 信号来停止服务"
+    logger.info("按 Ctrl+C 或发送 SIGTERM 信号来停止服务")
     
     # 使用 make_server 以便支持优雅关闭
     server = make_server('0.0.0.0', 5000, app, threaded=True)
