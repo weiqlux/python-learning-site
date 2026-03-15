@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📚 OCR 题库管理 - Python 学习网</title>
+    <!-- KaTeX CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <!-- KaTeX JS -->
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -1150,22 +1155,26 @@
             document.getElementById('editForm').classList.remove('active');
             document.getElementById('createForm').classList.remove('active');
             
-            document.getElementById('detailTopic').textContent = question.topic_text || '无';
+            // 题目内容（使用 innerHTML 以支持公式渲染）
+            document.getElementById('detailTopic').innerHTML = escapeHtml(question.topic_text) || '无';
             
             // 知识点
             const kps = question.knowledge_points || [];
             document.getElementById('detailKnowledge').innerHTML = kps.length > 0 
-                ? kps.map(kp => `<span class="tag">${kp}</span>`).join('')
+                ? kps.map(kp => `<span class="tag">${escapeHtml(kp)}</span>`).join('')
                 : '暂无';
             
             // 解题步骤
             const steps = question.solution_steps || [];
             document.getElementById('detailSteps').innerHTML = steps.length > 0
-                ? steps.map(step => `<li>${step}</li>`).join('')
+                ? steps.map(step => `<li>${escapeHtml(step)}</li>`).join('')
                 : '<li>暂无解题步骤</li>';
             
-            document.getElementById('detailThought').textContent = question.solution_thought || '暂无';
-            document.getElementById('detailAnswer').textContent = question.answer || '待计算';
+            document.getElementById('detailThought').innerHTML = escapeHtml(question.solution_thought) || '暂无';
+            document.getElementById('detailAnswer').innerHTML = escapeHtml(question.answer) || '待计算';
+            
+            // 渲染数学公式
+            setTimeout(renderMath, 100);
             
             // 标签
             const keywords = question.keywords || [];
@@ -1337,8 +1346,41 @@
             }, 3000);
         }
         
+        // HTML 转义（防止 XSS，但保留 LaTeX 公式）
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // 渲染数学公式
+        function renderMath() {
+            if (typeof renderMathInElement !== 'undefined') {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\[', right: '\\]', display: true},
+                        {left: '\\(', right: '\\)', display: false}
+                    ],
+                    throwOnError: false
+                });
+            }
+        }
+        
         // 页面加载
         loadQuestions();
+        
+        // 等待 KaTeX 加载完成后启用公式渲染
+        document.addEventListener("DOMContentLoaded", function() {
+            if (typeof renderMathInElement !== 'undefined') {
+                renderMath();
+            } else {
+                // KaTeX 还没加载完，等待一下
+                setTimeout(renderMath, 1000);
+            }
+        });
     </script>
 </body>
 </html>
