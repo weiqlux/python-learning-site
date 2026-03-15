@@ -782,7 +782,16 @@
         
         // 生成打印页面
         function generatePrintPage(questions) {
-            const printWindow = window.open('', '_blank');
+            // 尝试打开新窗口，如果被拦截则使用当前页面打印
+            let printWindow = window.open('', '_blank');
+            
+            // 检查窗口是否成功打开
+            if (!printWindow || printWindow.closed || typeof printWindow.closed === 'undefined') {
+                // 浏览器拦截了弹窗，使用当前页面打印方式
+                console.log('弹窗被拦截，使用备用打印方式');
+                printInCurrentPage(questions);
+                return;
+            }
             
             let html = `
                 <!DOCTYPE html>
@@ -926,6 +935,64 @@
             
             printWindow.document.write(html);
             printWindow.document.close();
+        }
+        
+        // 在当前页面打印（备用方案）
+        function printInCurrentPage(questions) {
+            // 保存当前页面内容
+            const originalContent = document.body.innerHTML;
+            
+            // 生成打印内容
+            let printContent = `
+                <div style="max-width: 800px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
+                    <div style="text-align: center; border-bottom: 2px solid #667eea; padding-bottom: 20px; margin-bottom: 30px;">
+                        <h1 style="color: #667eea; margin: 0;">📚 AMC8 题目练习</h1>
+                        <p>共 ${questions.length} 道题目 | 生成时间：${new Date().toLocaleString()}</p>
+                    </div>
+            `;
+            
+            questions.forEach((q, i) => {
+                const difficultyText = q.difficulty === 'easy' ? '简单' : q.difficulty === 'medium' ? '中等' : '困难';
+                printContent += `
+                    <div style="margin-bottom: 30px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; page-break-inside: avoid;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0;">
+                            <div style="background: #667eea; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">${i + 1}</div>
+                            <div style="font-size: 12px; color: #666;">
+                                ${q.category || 'AMC8'} | ${q.lesson || '未分类'} | 难度：${difficultyText}
+                            </div>
+                        </div>
+                        <div style="font-size: 14px; margin-bottom: 15px;">
+                            <pre style="white-space: pre-wrap; word-wrap: break-word; font-family: inherit; background: #f8f9ff; padding: 10px; border-radius: 4px;">${q.topic_text || '无题目内容'}</pre>
+                        </div>
+                        ${q.knowledge_points ? `
+                            <div style="background: #f0f8ff; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-size: 13px;">
+                                <strong>知识点：</strong>${q.knowledge_points}
+                            </div>
+                        ` : ''}
+                        ${q.answer ? `
+                            <div style="background: #e8f5e9; padding: 10px; border-radius: 4px; font-weight: bold; color: #2e7d32;">
+                                <strong>答案：</strong>${q.answer}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            printContent += `
+                    <div style="text-align: center; margin-top: 30px; padding: 20px;">
+                        <button onclick="location.reload()" style="background: #667eea; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 16px;">返回题库</button>
+                        <button onclick="window.print()" style="background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 16px; margin-left: 10px;">🖨️ 打印 / 保存为 PDF</button>
+                    </div>
+                </div>
+            `;
+            
+            // 替换页面内容
+            document.body.innerHTML = printContent;
+            
+            // 自动触发打印
+            setTimeout(() => {
+                window.print();
+            }, 500);
         }
         
         // 加载题目列表
