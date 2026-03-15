@@ -246,6 +246,25 @@ class OCRQuestionAnalyzer:
         
         # 3. 检查分析结果
         topic_text = analysis.get('topic_text', '')
+        
+        # 如果 topic_text 是JSON字符串（嵌套JSON问题），尝试解析
+        if topic_text and isinstance(topic_text, str) and topic_text.strip().startswith('{'):
+            try:
+                nested = json.loads(topic_text)
+                if isinstance(nested, dict) and 'topic_text' in nested:
+                    # 提取嵌套的字段
+                    topic_text = nested.get('topic_text', '')
+                    analysis['topic_text_en'] = nested.get('topic_text_en', analysis.get('topic_text_en', ''))
+                    analysis['knowledge_points'] = nested.get('knowledge_points', analysis.get('knowledge_points', []))
+                    analysis['difficulty'] = nested.get('difficulty', analysis.get('difficulty', 'medium'))
+                    analysis['solution_steps'] = nested.get('solution_steps', analysis.get('solution_steps', []))
+                    analysis['solution_thought'] = nested.get('solution_thought', analysis.get('solution_thought', ''))
+                    analysis['answer'] = nested.get('answer', analysis.get('answer', '待计算'))
+                    analysis['keywords'] = nested.get('keywords', analysis.get('keywords', []))
+                    analysis['common_mistakes'] = nested.get('common_mistakes', analysis.get('common_mistakes', []))
+            except json.JSONDecodeError:
+                pass  # 不是有效的JSON，保持原样
+        
         if not topic_text or topic_text == '待识别':
             topic_text = analysis.get('raw_text', '[识别失败，请手动编辑]')
         
