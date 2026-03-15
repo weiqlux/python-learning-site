@@ -3,6 +3,12 @@
 
 cd /home/admin/.openclaw/workspace/python-learning-site
 
+# 杀掉占用 5000 端口的进程
+echo "检查 5000 端口占用..."
+fuser -k 5000/tcp 2>/dev/null
+pkill -f "python app.py" 2>/dev/null
+sleep 2
+
 # 先加载 .env 文件（优先级最高）
 if [ -f .env ]; then
     set -a
