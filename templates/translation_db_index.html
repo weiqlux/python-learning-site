@@ -71,20 +71,7 @@
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         textarea { min-height: 100px; resize: vertical; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-family: inherit; font-size: 14px; }
         textarea:focus { outline: none; border-color: #667eea; }
-        .print-preview-modal .modal-content { max-width: 900px; padding: 30px; }
-        .print-page { background: white; padding: 40px; border: 1px solid #ddd; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .print-header { text-align: center; border-bottom: 2px solid #667eea; padding-bottom: 20px; margin-bottom: 30px; }
-        .print-header h1 { color: #667eea; margin: 0 0 10px 0; }
-        .print-header p { color: #666; margin: 0; }
-        .print-question { margin-bottom: 30px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; page-break-inside: avoid; }
-        .print-question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
-        .print-question-num { background: #667eea; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .print-question-meta { font-size: 12px; color: #666; }
-        .print-question-content { font-size: 14px; line-height: 1.8; }
-        .print-question-content pre { white-space: pre-wrap; word-wrap: break-word; font-family: inherit; background: #f8f9ff; padding: 12px; border-radius: 6px; margin: 10px 0; }
-        .print-translation { background: #f0f8ff; padding: 12px; border-radius: 6px; margin-top: 10px; font-size: 13px; }
-        .print-footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #888; font-size: 12px; }
-        @media print { body { background: white !important; padding: 0; } .no-print { display: none !important; } .print-page { box-shadow: none; border: none; padding: 20px; } }
+        @media print { body { background: white !important; padding: 0; } .no-print { display: none !important; } }
         footer { text-align: center; padding: 30px; color: rgba(255,255,255,0.8); font-size: 14px; }
     </style>
 </head>
@@ -233,17 +220,6 @@
         </div>
     </div>
 
-    <div class="modal print-preview-modal" id="printModal">
-        <div class="modal-content">
-            <div class="modal-header no-print"><h2>🖨️ 打印预览</h2><button class="close-btn" onclick="closePrintModal()">×</button></div>
-            <div id="printContent"></div>
-            <div class="no-print" style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
-                <button class="btn btn-primary" onclick="window.print()">🖨️ 打印 / 保存为 PDF</button>
-                <button class="btn btn-secondary" onclick="closePrintModal()">关闭</button>
-            </div>
-        </div>
-    </div>
-
     <footer><p>Python 学习网 © 2026 | 英语翻译题库管理中心</p></footer>
 
     <script>
@@ -336,23 +312,174 @@
                     });
                 }
             });
-            generatePrintPreview(questions);
+            generatePrintPage(questions);
         }
         
-        function generatePrintPreview(questions) {
-            const printContent = document.getElementById('printContent');
-            let html = `<div class="print-page"><div class="print-header"><h1>📚 英语翻译练习题</h1><p>共 ${questions.length} 道题目 | 生成时间：${new Date().toLocaleString()}</p></div>`;
+        function generatePrintPage(questions) {
+            // 在新窗口打开打印页面
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) {
+                alert('请允许弹窗以打开打印页面');
+                return;
+            }
+            
+            let html = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>英语翻译练习题 - 打印</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: white !important;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .print-page { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: white;
+            padding: 40px;
+        }
+        .print-header { 
+            text-align: center; 
+            border-bottom: 2px solid #667eea; 
+            padding-bottom: 20px; 
+            margin-bottom: 30px;
+        }
+        .print-header h1 { color: #667eea; margin: 0 0 10px 0; font-size: 28px; }
+        .print-header p { color: #666; margin: 0; font-size: 14px; }
+        .print-question { 
+            margin-bottom: 30px; 
+            padding: 20px; 
+            border: 1px solid #e0e0e0; 
+            border-radius: 8px;
+            page-break-inside: avoid;
+            background: white;
+        }
+        .print-question-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 15px; 
+            padding-bottom: 10px; 
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .print-question-num { 
+            background: #667eea; 
+            color: white; 
+            width: 32px; 
+            height: 32px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: bold;
+        }
+        .print-question-meta { font-size: 12px; color: #666; }
+        .print-question-content { font-size: 14px; line-height: 1.8; }
+        .print-question-content h4 { margin-bottom: 10px; color: #333; }
+        .print-question-content pre { 
+            white-space: pre-wrap; 
+            word-wrap: break-word; 
+            font-family: inherit; 
+            background: #f8f9ff; 
+            padding: 12px; 
+            border-radius: 6px; 
+            margin: 10px 0;
+            border-left: 3px solid #667eea;
+        }
+        .print-footer { 
+            text-align: center; 
+            margin-top: 30px; 
+            padding-top: 20px; 
+            border-top: 1px solid #eee; 
+            color: #888; 
+            font-size: 12px;
+        }
+        .print-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        .print-btn:hover { background: #764ba2; }
+        .action-btns {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+        }
+        .action-btns button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 5px;
+        }
+        .action-btns button:hover { background: #764ba2; }
+        .action-btns button.secondary {
+            background: #6c757d;
+        }
+        .action-btns button.secondary:hover { background: #5a6268; }
+        @media print {
+            body { background: white !important; padding: 0; }
+            .no-print { display: none !important; }
+            .print-page { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <button class="print-btn no-print" onclick="window.print()">🖨️ 打印 / 保存为 PDF</button>
+    
+    <div class="print-page">
+        <div class="print-header">
+            <h1>📚 英语翻译练习题</h1>
+            <p>共 ${questions.length} 道题目 | 生成时间：${new Date().toLocaleString()}</p>
+        </div>`;
             
             questions.forEach((q, i) => {
-                html += `<div class="print-question"><div class="print-question-header"><div class="print-question-num">${i + 1}</div><div class="print-question-meta">${q.category} | ${q.source || '未知来源'}</div></div><div class="print-question-content"><h4>${q.title || '未命名题目'}</h4><pre>${q.original || '无原文'}</pre></div></div>`;
+                html += `
+        <div class="print-question">
+            <div class="print-question-header">
+                <div class="print-question-num">${i + 1}</div>
+                <div class="print-question-meta">${q.category} | ${q.source || '未知来源'}</div>
+            </div>
+            <div class="print-question-content">
+                <h4>${q.title || '未命名题目'}</h4>
+                <pre>${q.original || '无原文'}</pre>
+            </div>
+        </div>`;
             });
             
-            html += `<div class="print-footer"><p>Python 学习网 | 英语翻译题库</p></div></div>`;
-            printContent.innerHTML = html;
-            document.getElementById('printModal').classList.add('active');
+            html += `
+        <div class="print-footer">
+            <p>Python 学习网 | 英语翻译题库</p>
+        </div>
+    </div>
+    
+    <div class="action-btns no-print">
+        <button onclick="window.print()">🖨️ 打印 / 保存为 PDF</button>
+        <button class="secondary" onclick="window.close()">❌ 关闭</button>
+    </div>
+</body>
+</html>`;
+            
+            printWindow.document.write(html);
+            printWindow.document.close();
         }
-        
-        function closePrintModal() { document.getElementById('printModal').classList.remove('active'); }
         function openAddModal() { document.getElementById('addModal').classList.add('active'); }
         function closeAddModal() {
             document.getElementById('addModal').classList.remove('active');
@@ -406,7 +533,6 @@
         }
         
         document.getElementById('addModal').addEventListener('click', function(e) { if (e.target === this) closeAddModal(); });
-        document.getElementById('printModal').addEventListener('click', function(e) { if (e.target === this) closePrintModal(); });
     </script>
 </body>
 </html>
