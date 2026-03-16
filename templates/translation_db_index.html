@@ -6,302 +6,110 @@
     <title>题库管理中心 - 英语翻译练习</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <style>
-        .db-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px 20px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
-        }
-        .stat-card {
-            background: rgba(255,255,255,0.2);
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        .stat-card .number {
-            font-size: 2.5em;
-            font-weight: bold;
-        }
-        .stat-card .label {
-            font-size: 0.9em;
-            opacity: 0.9;
-        }
-        .filter-bar {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-        .filter-form {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            align-items: end;
-        }
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        .form-group label {
-            font-weight: 600;
-            color: #555;
-            font-size: 0.9em;
-        }
-        .form-group input,
-        .form-group select {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1em;
-        }
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
-        .btn-primary:hover {
-            background: #764ba2;
-        }
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-        .question-list {
-            display: grid;
-            gap: 20px;
-        }
-        .question-card {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-        }
-        .question-card:hover {
-            transform: translateY(-3px);
-        }
-        .question-card .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 15px;
-        }
-        .question-card .title {
-            font-size: 1.3em;
-            color: #333;
-            margin: 0;
-        }
-        .question-card .meta {
-            display: flex;
-            gap: 15px;
-            font-size: 0.9em;
-            color: #888;
-        }
-        .question-card .original {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
-            margin: 15px 0;
-            font-style: italic;
-            color: #555;
-        }
-        .question-card .stats {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        .stat-badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 600;
-        }
-        .stat-badge.easy {
-            background: #d4edda;
-            color: #155724;
-        }
-        .stat-badge.medium {
-            background: #fff3cd;
-            color: #856404;
-        }
-        .stat-badge.hard {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        .stat-badge.new {
-            background: #e2e3e5;
-            color: #383d41;
-        }
-        .difficulty-filter {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
-        .difficulty-btn {
-            padding: 8px 16px;
-            border: 2px solid #ddd;
-            background: white;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        .difficulty-btn.active {
-            border-color: #667eea;
-            background: #667eea;
-            color: white;
-        }
-        .action-bar {
-            display: flex;
-            gap: 15px;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-        }
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #888;
-        }
-        .empty-state .icon {
-            font-size: 4em;
-            margin-bottom: 20px;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal.active {
-            display: flex;
-        }
-        .modal-content {
-            background: white;
-            border-radius: 12px;
-            padding: 40px;
-            max-width: 800px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-        .modal-header h2 {
-            margin: 0;
-            color: #333;
-        }
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5em;
-            cursor: pointer;
-            color: #888;
-        }
-        .upload-area {
-            border: 2px dashed #ddd;
-            border-radius: 8px;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin: 20px 0;
-        }
-        .upload-area:hover {
-            border-color: #667eea;
-            background: #f8f9fa;
-        }
-        .upload-area.has-file {
-            border-color: #28a745;
-            background: #d4edda;
-        }
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .db-header { background: white; border-radius: 16px; padding: 30px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+        .db-header h2 { color: #667eea; font-size: 24px; margin-bottom: 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; }
+        .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 12px; text-align: center; color: white; }
+        .stat-card .number { font-size: 2.5em; font-weight: bold; }
+        .stat-card .label { font-size: 0.9em; opacity: 0.9; margin-top: 5px; }
+        .filter-bar { background: white; border-radius: 16px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .filter-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end; margin-bottom: 20px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-group label { font-weight: 600; color: #555; font-size: 0.9em; }
+        .form-group input, .form-group select { padding: 12px 14px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em; transition: border-color 0.3s; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #667eea; }
+        .btn { padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; }
+        .btn-danger { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-warning { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
+        .action-bar-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding-top: 15px; border-top: 1px solid #eee; }
+        .difficulty-filter { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .difficulty-btn { padding: 8px 16px; border: 2px solid #e0e0e0; background: white; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.3s; }
+        .difficulty-btn.active { border-color: #667eea; background: #667eea; color: white; }
+        .action-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+        .question-list { background: white; border-radius: 16px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+        .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+        .list-header h3 { color: #333; font-size: 18px; }
+        .selection-info { display: flex; align-items: center; gap: 15px; }
+        .question-card { padding: 20px; border-bottom: 1px solid #eee; transition: background 0.2s; cursor: pointer; display: flex; gap: 15px; align-items: flex-start; }
+        .question-card:hover { background: #f8f9ff; }
+        .question-card.selected { background: #e8f5e9; border-left: 4px solid #4caf50; }
+        .question-card.active { background: #f0f3ff; border-left: 4px solid #667eea; }
+        .checkbox-wrapper { display: flex; align-items: center; justify-content: center; min-width: 30px; }
+        .checkbox-wrapper input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-color: #667eea; }
+        .question-content-wrapper { flex: 1; }
+        .question-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .question-title { font-size: 1.1em; color: #333; font-weight: 600; margin: 0; }
+        .question-meta { display: flex; gap: 15px; font-size: 0.85em; color: #888; flex-wrap: wrap; }
+        .question-original { background: #f8f9fa; padding: 12px; border-radius: 8px; border-left: 4px solid #667eea; margin: 10px 0; font-style: italic; color: #555; font-size: 0.95em; }
+        .question-stats { display: flex; gap: 20px; flex-wrap: wrap; font-size: 0.85em; color: #666; }
+        .stat-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.8em; font-weight: 600; }
+        .stat-badge.easy { background: #d4edda; color: #155724; }
+        .stat-badge.medium { background: #fff3cd; color: #856404; }
+        .stat-badge.hard { background: #f8d7da; color: #721c24; }
+        .stat-badge.new { background: #e2e3e5; color: #383d41; }
+        .question-actions { display: flex; gap: 10px; margin-top: 12px; }
+        .btn-small { padding: 6px 14px; font-size: 12px; border-radius: 6px; }
+        .empty-state { text-align: center; padding: 60px 20px; color: #888; }
+        .empty-state .icon { font-size: 4em; margin-bottom: 20px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 16px; padding: 40px; max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .modal-header h2 { margin: 0; color: #333; }
+        .close-btn { background: none; border: none; font-size: 1.5em; cursor: pointer; color: #888; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .close-btn:hover { background: #f0f0f0; }
+        .upload-area { border: 2px dashed #ddd; border-radius: 8px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.3s; margin: 20px 0; }
+        .upload-area:hover { border-color: #667eea; background: #f8f9fa; }
+        .upload-area.has-file { border-color: #28a745; background: #d4edda; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        textarea { min-height: 100px; resize: vertical; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-family: inherit; font-size: 14px; }
+        textarea:focus { outline: none; border-color: #667eea; }
+        .print-preview-modal .modal-content { max-width: 900px; padding: 30px; }
+        .print-page { background: white; padding: 40px; border: 1px solid #ddd; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .print-header { text-align: center; border-bottom: 2px solid #667eea; padding-bottom: 20px; margin-bottom: 30px; }
+        .print-header h1 { color: #667eea; margin: 0 0 10px 0; }
+        .print-header p { color: #666; margin: 0; }
+        .print-question { margin-bottom: 30px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; page-break-inside: avoid; }
+        .print-question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
+        .print-question-num { background: #667eea; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .print-question-meta { font-size: 12px; color: #666; }
+        .print-question-content { font-size: 14px; line-height: 1.8; }
+        .print-question-content pre { white-space: pre-wrap; word-wrap: break-word; font-family: inherit; background: #f8f9ff; padding: 12px; border-radius: 6px; margin: 10px 0; }
+        .print-translation { background: #f0f8ff; padding: 12px; border-radius: 6px; margin-top: 10px; font-size: 13px; }
+        .print-footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #888; font-size: 12px; }
+        @media print { body { background: white !important; padding: 0; } .no-print { display: none !important; } .print-page { box-shadow: none; border: none; padding: 20px; } }
+        footer { text-align: center; padding: 30px; color: rgba(255,255,255,0.8); font-size: 14px; }
     </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <h1>📚 题库管理中心</h1>
-            <p class="subtitle">动态题库 · 答题统计 · 难度分析</p>
-        </div>
-    </header>
-
-    <main class="container">
+    <div class="container">
         <div class="db-header">
-            <h2>📊 题库概览</h2>
+            <h2>📊 英语翻译题库概览</h2>
             <div class="stats-grid" id="statsGrid">
-                <div class="stat-card">
-                    <div class="number" id="totalQuestions">-</div>
-                    <div class="label">总题目数</div>
-                </div>
-                <div class="stat-card">
-                    <div class="number" id="hardQuestions">-</div>
-                    <div class="label">高难度</div>
-                </div>
-                <div class="stat-card">
-                    <div class="number" id="mediumQuestions">-</div>
-                    <div class="label">中等难度</div>
-                </div>
-                <div class="stat-card">
-                    <div class="number" id="easyQuestions">-</div>
-                    <div class="label">简单</div>
-                </div>
-                <div class="stat-card">
-                    <div class="number" id="totalAnswers">-</div>
-                    <div class="label">答题次数</div>
-                </div>
+                <div class="stat-card"><div class="number" id="totalQuestions">-</div><div class="label">总题目数</div></div>
+                <div class="stat-card"><div class="number" id="hardQuestions">-</div><div class="label">高难度</div></div>
+                <div class="stat-card"><div class="number" id="mediumQuestions">-</div><div class="label">中等难度</div></div>
+                <div class="stat-card"><div class="number" id="easyQuestions">-</div><div class="label">简单</div></div>
+                <div class="stat-card"><div class="number" id="totalAnswers">-</div><div class="label">答题次数</div></div>
             </div>
         </div>
 
         <div class="filter-bar">
-            <form class="filter-form" method="GET" action="/translation-db">
+            <form class="filter-form" method="GET" action="/translation-db" id="filterForm">
                 <div class="form-group">
                     <label>🔍 关键词搜索</label>
-                    <input type="text" name="keyword" placeholder="搜索题目..." value="{{ request.args.get('keyword', '') }}">
+                    <input type="text" name="keyword" id="keywordInput" placeholder="搜索题目..." value="{{ request.args.get('keyword', '') }}">
                 </div>
                 <div class="form-group">
                     <label>📁 分类</label>
-                    <select name="category">
+                    <select name="category" id="categorySelect">
                         <option value="">全部分类</option>
                         {% for cat in categories %}
                         <option value="{{ cat }}" {% if current_category == cat %}selected{% endif %}>{{ cat }}</option>
@@ -310,7 +118,7 @@
                 </div>
                 <div class="form-group">
                     <label>📅 日期</label>
-                    <input type="date" name="date" value="{{ current_date or '' }}">
+                    <input type="date" name="date" id="dateInput" value="{{ current_date or '' }}">
                 </div>
                 <div class="form-group">
                     <label></label>
@@ -318,68 +126,80 @@
                 </div>
             </form>
 
-            <div class="difficulty-filter">
-                <span style="align-self: center; font-weight: 600; color: #555;">难度筛选：</span>
-                <button class="difficulty-btn {% if not current_difficulty %}active{% endif %}" 
-                        onclick="location.href='/translation-db'">全部</button>
-                <button class="difficulty-btn {% if current_difficulty == 'hard' %}active{% endif %}"
-                        onclick="location.href='/translation-db?difficulty=hard'">🔴 高难度</button>
-                <button class="difficulty-btn {% if current_difficulty == 'medium' %}active{% endif %}"
-                        onclick="location.href='/translation-db?difficulty=medium'">🟡 中等</button>
-                <button class="difficulty-btn {% if current_difficulty == 'easy' %}active{% endif %}"
-                        onclick="location.href='/translation-db?difficulty=easy'">🟢 简单</button>
-                <a href="/smart-add" class="btn btn-success" style="margin-left: auto; text-decoration: none; display: inline-block;">🤖 智能添加</a>
-                <button class="btn btn-danger" onclick="openAddModal()">➕ 手动添加</button>
+            <div class="action-bar-header">
+                <div class="difficulty-filter">
+                    <span style="font-weight: 600; color: #555;">难度筛选：</span>
+                    <button class="difficulty-btn {% if not current_difficulty %}active{% endif %}" onclick="filterByDifficulty('')">全部</button>
+                    <button class="difficulty-btn {% if current_difficulty == 'hard' %}active{% endif %}" onclick="filterByDifficulty('hard')">🔴 高难度</button>
+                    <button class="difficulty-btn {% if current_difficulty == 'medium' %}active{% endif %}" onclick="filterByDifficulty('medium')">🟡 中等</button>
+                    <button class="difficulty-btn {% if current_difficulty == 'easy' %}active{% endif %}" onclick="filterByDifficulty('easy')">🟢 简单</button>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-warning" id="selectModeBtn" onclick="toggleSelectMode()">☑️ 多选模式</button>
+                    <button class="btn btn-danger" id="exportBtn" onclick="exportSelected()" style="display:none;">📄 导出打印 (0)</button>
+                    <a href="/smart-add" class="btn btn-success" style="text-decoration: none;">🤖 智能添加</a>
+                    <button class="btn btn-primary" onclick="openAddModal()">➕ 手动添加</button>
+                </div>
             </div>
         </div>
 
         <div class="question-list">
-            {% if questions %}
-                {% for q in questions %}
-                <div class="question-card">
-                    <div class="header">
-                        <h3 class="title">{{ q.title }}</h3>
-                        <div class="meta">
-                            <span>📁 {{ q.category }}</span>
-                            <span>📅 {{ q.created_date }}</span>
+            <div class="list-header">
+                <h3>📚 题目列表</h3>
+                <div class="selection-info" id="selectionInfo" style="display: none;">
+                    <span style="color: #667eea; font-weight: 600;">已选择 <span id="selectedCount">0</span> 道题</span>
+                    <button class="btn btn-secondary btn-small" onclick="clearSelection()">清空选择</button>
+                </div>
+            </div>
+            
+            <div id="questionsContainer">
+                {% if questions %}
+                    {% for q in questions %}
+                    <div class="question-card" data-id="{{ q.id }}" onclick="handleQuestionClick({{ q.id }}, event)">
+                        <div class="checkbox-wrapper" style="display: none;" id="checkboxWrapper{{ q.id }}">
+                            <input type="checkbox" id="checkbox{{ q.id }}" onchange="toggleQuestionSelection({{ q.id }})" onclick="event.stopPropagation()">
+                        </div>
+                        <div class="question-content-wrapper">
+                            <div class="question-header">
+                                <h3 class="question-title">{{ q.title }}</h3>
+                                <div class="question-meta">
+                                    <span>📁 {{ q.category }}</span>
+                                    <span>📅 {{ q.created_date }}</span>
+                                    {% if q.stats %}
+                                    <span class="stat-badge {{ q.difficulty_level }}">{{ {'hard': '🔴 困难', 'medium': '🟡 中等', 'easy': '🟢 简单', 'new': '⚪ 新题'}[q.difficulty_level] }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="question-original">{{ q.original }}</div>
                             {% if q.stats %}
-                            <span class="stat-badge {{ q.difficulty_level }}">{{ 
-                                {'hard': '🔴 困难', 'medium': '🟡 中等', 'easy': '🟢 简单', 'new': '⚪ 新题'}[q.difficulty_level] 
-                            }}</span>
+                            <div class="question-stats">
+                                <span>📊 答题：{{ q.total_attempts }} 次</span>
+                                <span>✅ 正确：{{ q.correct_count }} 次</span>
+                                {% if q.total_attempts > 0 %}
+                                <span>📈 正确率：{{ (q.correct_count / q.total_attempts * 100)|round(1) }}%</span>
+                                {% endif %}
+                            </div>
+                            {% else %}
+                            <div class="question-stats"><span>⚪ 暂无答题记录</span></div>
                             {% endif %}
+                            <div class="question-actions">
+                                <a href="/translation-db/{{ q.id }}" class="btn btn-primary btn-small" onclick="event.stopPropagation()">查看详情</a>
+                                <a href="/translation-db/{{ q.id }}#practice" class="btn btn-success btn-small" onclick="event.stopPropagation()">开始练习</a>
+                            </div>
                         </div>
                     </div>
-                    <div class="original">{{ q.original }}</div>
-                    {% if q.stats %}
-                    <div class="stats">
-                        <span>📊 答题：{{ q.total_attempts }} 次</span>
-                        <span>✅ 正确：{{ q.correct_count }} 次</span>
-                        {% if q.total_attempts > 0 %}
-                        <span>📈 正确率：{{ (q.correct_count / q.total_attempts * 100)|round(1) }}%</span>
-                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <div class="icon">📭</div>
+                        <h3>暂无题目</h3>
+                        <p>点击上方"手动添加"或"智能添加"按钮开始创建题库</p>
                     </div>
-                    {% else %}
-                    <div class="stats">
-                        <span>⚪ 暂无答题记录</span>
-                    </div>
-                    {% endif %}
-                    <div class="action-bar">
-                        <a href="/translation-db/{{ q.id }}" class="btn btn-primary">查看详情</a>
-                        <a href="/translation-db/{{ q.id }}#practice" class="btn btn-success">开始练习</a>
-                    </div>
-                </div>
-                {% endfor %}
-            {% else %}
-                <div class="empty-state">
-                    <div class="icon">📭</div>
-                    <h3>暂无题目</h3>
-                    <p>点击上方"添加新题目"按钮开始创建题库</p>
-                </div>
-            {% endif %}
+                {% endif %}
+            </div>
         </div>
-    </main>
+    </div>
 
-    <!-- 添加题目模态框 -->
     <div class="modal" id="addModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -388,75 +208,152 @@
             </div>
             <form id="addForm" onsubmit="submitQuestion(event)">
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>标题 *</label>
-                        <input type="text" name="title" required placeholder="例如：哈姆雷特经典独白">
-                    </div>
-                    <div class="form-group">
-                        <label>分类 *</label>
-                        <input type="text" name="category" required placeholder="例如：shakespeare">
-                    </div>
+                    <div class="form-group"><label>标题 *</label><input type="text" name="title" required placeholder="例如：哈姆雷特经典独白"></div>
+                    <div class="form-group"><label>分类 *</label><input type="text" name="category" required placeholder="例如：shakespeare"></div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>出处</label>
-                        <input type="text" name="source" placeholder="例如：哈姆雷特 Act 3 Scene 1">
-                    </div>
-                    <div class="form-group">
-                        <label>翻译提示</label>
-                        <input type="text" name="tips" placeholder="翻译技巧或注意事项">
-                    </div>
+                    <div class="form-group"><label>出处</label><input type="text" name="source" placeholder="例如：哈姆雷特 Act 3 Scene 1"></div>
+                    <div class="form-group"><label>翻译提示</label><input type="text" name="tips" placeholder="翻译技巧或注意事项"></div>
                 </div>
-                <div class="form-group">
-                    <label>英文原文 *</label>
-                    <textarea name="original" required placeholder="输入英文原文..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>参考翻译 *</label>
-                    <textarea name="translation" required placeholder="输入中文翻译..."></textarea>
-                </div>
+                <div class="form-group"><label>英文原文 *</label><textarea name="original" required placeholder="输入英文原文..."></textarea></div>
+                <div class="form-group"><label>参考翻译 *</label><textarea name="translation" required placeholder="输入中文翻译..."></textarea></div>
                 <div class="form-group">
                     <label>📷 上传图片（可选）</label>
                     <div class="upload-area" id="uploadArea" onclick="document.getElementById('imageInput').click()">
-                        <div id="uploadText">
-                            <div style="font-size: 2em;">📷</div>
-                            <div>点击上传图片或拍照</div>
-                            <div style="font-size: 0.8em; color: #888;">支持 JPG、PNG 格式</div>
-                        </div>
+                        <div id="uploadText"><div style="font-size: 2em;">📷</div><div>点击上传图片或拍照</div><div style="font-size: 0.8em; color: #888;">支持 JPG、PNG 格式</div></div>
                         <img id="previewImage" style="max-width: 100%; max-height: 200px; display: none;">
                     </div>
                     <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="previewImageFile(this)">
                 </div>
                 <div style="display: flex; gap: 15px; margin-top: 20px;">
                     <button type="submit" class="btn btn-primary" style="flex: 1;">💾 保存题目</button>
-                    <button type="button" class="btn" style="flex: 1; background: #6c757d; color: white;" onclick="closeAddModal()">取消</button>
+                    <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeAddModal()">取消</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <footer>
-        <div class="container">
-            <p>Python 学习网 © 2026 | 题库管理中心</p>
+    <div class="modal print-preview-modal" id="printModal">
+        <div class="modal-content">
+            <div class="modal-header no-print"><h2>🖨️ 打印预览</h2><button class="close-btn" onclick="closePrintModal()">×</button></div>
+            <div id="printContent"></div>
+            <div class="no-print" style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
+                <button class="btn btn-primary" onclick="window.print()">🖨️ 打印 / 保存为 PDF</button>
+                <button class="btn btn-secondary" onclick="closePrintModal()">关闭</button>
+            </div>
         </div>
-    </footer>
+    </div>
+
+    <footer><p>Python 学习网 © 2026 | 英语翻译题库管理中心</p></footer>
 
     <script>
-        // 加载统计数据
-        fetch('/api/questions/stats')
-            .then(r => r.json())
-            .then(data => {
+        let selectMode = false;
+        let selectedQuestions = new Set();
+        
+        document.addEventListener('DOMContentLoaded', function() { loadStats(); });
+        
+        async function loadStats() {
+            try {
+                const res = await fetch('/api/questions/stats');
+                const data = await res.json();
                 document.getElementById('totalQuestions').textContent = data.total_questions;
                 document.getElementById('hardQuestions').textContent = data.by_difficulty.hard;
                 document.getElementById('mediumQuestions').textContent = data.by_difficulty.medium;
                 document.getElementById('easyQuestions').textContent = data.by_difficulty.easy;
                 document.getElementById('totalAnswers').textContent = data.total_answers;
-            });
-
-        function openAddModal() {
-            document.getElementById('addModal').classList.add('active');
+            } catch (e) { console.error('加载统计失败:', e); }
         }
-
+        
+        function toggleSelectMode() {
+            selectMode = !selectMode;
+            const btn = document.getElementById('selectModeBtn');
+            const exportBtn = document.getElementById('exportBtn');
+            const checkboxes = document.querySelectorAll('.checkbox-wrapper');
+            const selectionInfo = document.getElementById('selectionInfo');
+            
+            if (selectMode) {
+                btn.textContent = '❌ 取消多选'; btn.classList.remove('btn-warning'); btn.classList.add('btn-danger');
+                exportBtn.style.display = 'inline-block'; selectionInfo.style.display = 'flex';
+                checkboxes.forEach(cb => cb.style.display = 'flex');
+            } else {
+                btn.textContent = '☑️ 多选模式'; btn.classList.remove('btn-danger'); btn.classList.add('btn-warning');
+                exportBtn.style.display = 'none'; selectionInfo.style.display = 'none';
+                checkboxes.forEach(cb => cb.style.display = 'none');
+                clearSelection();
+            }
+        }
+        
+        function handleQuestionClick(id, event) {
+            if (selectMode) {
+                event.preventDefault();
+                const checkbox = document.getElementById('checkbox' + id);
+                checkbox.checked = !checkbox.checked;
+                toggleQuestionSelection(id);
+            }
+        }
+        
+        function toggleQuestionSelection(id) {
+            const card = document.querySelector(`.question-card[data-id="${id}"]`);
+            if (selectedQuestions.has(id)) {
+                selectedQuestions.delete(id); card.classList.remove('selected');
+            } else {
+                selectedQuestions.add(id); card.classList.add('selected');
+            }
+            updateSelectionUI();
+        }
+        
+        function updateSelectionUI() {
+            document.getElementById('selectedCount').textContent = selectedQuestions.size;
+            document.getElementById('exportBtn').textContent = `📄 导出打印 (${selectedQuestions.size})`;
+        }
+        
+        function clearSelection() {
+            selectedQuestions.clear();
+            document.querySelectorAll('.question-card').forEach(card => card.classList.remove('selected'));
+            document.querySelectorAll('.checkbox-wrapper input').forEach(cb => cb.checked = false);
+            updateSelectionUI();
+        }
+        
+        function filterByDifficulty(difficulty) {
+            const url = new URL(window.location.href);
+            if (difficulty) { url.searchParams.set('difficulty', difficulty); }
+            else { url.searchParams.delete('difficulty'); }
+            window.location.href = url.toString();
+        }
+        
+        function exportSelected() {
+            if (selectedQuestions.size === 0) { alert('请先选择要导出的题目'); return; }
+            
+            const questions = [];
+            selectedQuestions.forEach(id => {
+                const card = document.querySelector(`.question-card[data-id="${id}"]`);
+                if (card) {
+                    questions.push({
+                        id: id, title: card.querySelector('.question-title').textContent,
+                        original: card.querySelector('.question-original').textContent,
+                        category: card.querySelector('.question-meta').textContent.split('📁')[1]?.split('📅')[0]?.trim() || '未分类',
+                        source: card.querySelector('.question-meta').textContent.split('📅')[1]?.trim() || ''
+                    });
+                }
+            });
+            generatePrintPreview(questions);
+        }
+        
+        function generatePrintPreview(questions) {
+            const printContent = document.getElementById('printContent');
+            let html = `<div class="print-page"><div class="print-header"><h1>📚 英语翻译练习题</h1><p>共 ${questions.length} 道题目 | 生成时间：${new Date().toLocaleString()}</p></div>`;
+            
+            questions.forEach((q, i) => {
+                html += `<div class="print-question"><div class="print-question-header"><div class="print-question-num">${i + 1}</div><div class="print-question-meta">${q.category} | ${q.source || '未知来源'}</div></div><div class="print-question-content"><h4>${q.title || '未命名题目'}</h4><pre>${q.original || '无原文'}</pre></div></div>`;
+            });
+            
+            html += `<div class="print-footer"><p>Python 学习网 | 英语翻译题库</p></div></div>`;
+            printContent.innerHTML = html;
+            document.getElementById('printModal').classList.add('active');
+        }
+        
+        function closePrintModal() { document.getElementById('printModal').classList.remove('active'); }
+        function openAddModal() { document.getElementById('addModal').classList.add('active'); }
         function closeAddModal() {
             document.getElementById('addModal').classList.remove('active');
             document.getElementById('addForm').reset();
@@ -464,7 +361,7 @@
             document.getElementById('previewImage').style.display = 'none';
             document.getElementById('uploadText').style.display = 'block';
         }
-
+        
         function previewImageFile(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
@@ -477,60 +374,39 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
-
+        
         async function submitQuestion(event) {
             event.preventDefault();
             const form = event.target;
             const formData = new FormData(form);
             
             let imagePath = null;
-            if (formData.get('imageInput')) {
-                const imageFile = document.getElementById('imageInput').files[0];
-                if (imageFile) {
-                    const imageFormData = new FormData();
-                    imageFormData.append('image', imageFile);
-                    
-                    const uploadRes = await fetch('/upload-image', {
-                        method: 'POST',
-                        body: imageFormData
-                    });
-                    const uploadData = await uploadRes.json();
-                    if (uploadData.success) {
-                        imagePath = uploadData.image_path;
-                    }
-                }
+            const imageFile = document.getElementById('imageInput').files[0];
+            if (imageFile) {
+                const imageFormData = new FormData();
+                imageFormData.append('image', imageFile);
+                const uploadRes = await fetch('/upload-image', { method: 'POST', body: imageFormData });
+                const uploadData = await uploadRes.json();
+                if (uploadData.success) imagePath = uploadData.image_path;
             }
-
+            
             const data = {
-                title: formData.get('title'),
-                category: formData.get('category'),
-                source: formData.get('source'),
-                original: formData.get('original'),
-                translation: formData.get('translation'),
-                tips: formData.get('tips'),
-                image_path: imagePath
+                title: formData.get('title'), category: formData.get('category'),
+                source: formData.get('source'), original: formData.get('original'),
+                translation: formData.get('translation'), tips: formData.get('tips'), image_path: imagePath
             };
-
+            
             const res = await fetch('/api/question/add', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data)
+                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)
             });
             
             const result = await res.json();
-            if (result.success) {
-                alert('题目添加成功！');
-                closeAddModal();
-                location.reload();
-            } else {
-                alert('添加失败：' + result.message);
-            }
+            if (result.success) { alert('题目添加成功！'); closeAddModal(); location.reload(); }
+            else { alert('添加失败：' + result.message); }
         }
-
-        // 点击模态框外部关闭
-        document.getElementById('addModal').addEventListener('click', function(e) {
-            if (e.target === this) closeAddModal();
-        });
+        
+        document.getElementById('addModal').addEventListener('click', function(e) { if (e.target === this) closeAddModal(); });
+        document.getElementById('printModal').addEventListener('click', function(e) { if (e.target === this) closePrintModal(); });
     </script>
 </body>
 </html>
