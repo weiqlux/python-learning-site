@@ -22,6 +22,7 @@ from ocr_question_manager import (
     get_all_categories, get_all_lessons, get_statistics, record_answer,
     get_question as get_ocr_question
 )
+from document_mindmap import DocumentMindMapGenerator
 
 # 配置日志
 logging.basicConfig(
@@ -50,6 +51,9 @@ init_ocr_db()
 
 # OCR 分析器初始化
 ocr_analyzer = OCRQuestionAnalyzer()
+
+# 文档分析与思维导图生成器初始化
+doc_mindmap_generator = DocumentMindMapGenerator()
 
 # 英语翻译练习素材
 TRANSLATION_EXERCISES = {
@@ -1113,6 +1117,120 @@ def api_ocr_export_pdf():
     except Exception as e:
         import traceback
         traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+# ==================== 文档分析 + 思维导图模块 ====================
+
+@app.route('/document-mindmap')
+def document_mindmap_page():
+    """文档分析与思维导图页面"""
+    return render_template('document_mindmap.html')
+
+
+@app.route('/api/document/analyze', methods=['POST'])
+def api_document_analyze():
+    """API: 分析文档图片"""
+    try:
+        # 检查文件
+        if 'image' not in request.files:
+            return jsonify({'success': False, 'error': '未找到图片文件'}), 400
+        
+        file = request.files['image']
+        if file.filename == '':
+            return jsonify({'success': False, 'error': '未选择文件'}), 400
+        
+        # 保存临时文件
+        temp_path = f'/tmp/doc_{datetime.now().timestamp()}.jpg'
+        file.save(temp_path)
+        
+        # 获取参数
+        question = request.form.get('question', '')
+        scenario = request.form.get('scenario', 'general')
+        
+        # 分析文档
+        result = doc_mindmap_generator.analyze_document(
+            image_path=temp_path,
+            question=question if question else None,
+            scenario=scenario
+        )
+        
+        # 清理临时文件
+        try:
+            os.remove(temp_path)
+        except:
+            pass
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        logger.error(f"文档分析失败：{e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/document/chat', methods=['POST'])
+def api_document_chat():
+    """API: 与文档进行多轮对话"""
+    try:
+        data = request.json
+        session_id = data.get('session_id')
+        question = data.get('question')
+        
+        if not session_id:
+            return jsonify({'success': False, 'error': '缺少会话ID'}), 400
+        
+        if not question:
+            return jsonify({'success': False, 'error': '请输入问题'}), 400
+        
+        result = doc_mindmap_generator.chat(session_id, question)
+        return jsonify(result)
+        
+    except Exception as e:
+        logger.error(f"对话失败：{e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/document/sessions')
+def api_document_sessions():
+    """API: 获取所有会话列表"""
+    try:
+        sessions = doc_mindmap_generator.get_sessions(limit=20)
+        return jsonify(sessions)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/document/session/<session_id>')
+def api_document_session(session_id):
+    """API: 获取单个会话详情"""
+    try:
+        session = doc_mindmap_generator.get_session(session_id)
+        if not session:
+            return jsonify({'error': '会话不存在'}), 404
+        return jsonify(session)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/document/scenarios')
+def api_document_scenarios():
+    """API: 获取所有分析场景"""
+    try:
+        scenarios = []
+        for key, config in DocumentMindMapGenerator.SCENARIOS.items():
+            scenarios.append({
+                'id': key,
+                'name': config['name'],
+                'description': config['description']
+            })
+        return jsonify(scenarios)
+    except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 

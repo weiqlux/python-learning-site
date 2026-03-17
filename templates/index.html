@@ -59,6 +59,16 @@
             </div>
         </section>
 
+        <section class="category" style="background: linear-gradient(135deg, #8e2de215 0%, #4a00e015 100%); padding: 30px; border-radius: 12px; border-left: 5px solid #8e2de2; margin-top: 30px;">
+            <h2 style="color: #8e2de2;">🧠 文档分析 + 思维导图</h2>
+            <p style="margin-bottom: 20px;">上传文档图片，AI 智能分析内容并生成思维导图。支持财务报表、流程图、架构图、思维导图归纳！</p>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <a href="/document-mindmap" class="lesson-card" style="display: inline-block; width: auto; padding: 15px 25px; text-decoration: none; flex: 1; min-width: 200px; background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); color: white;">
+                    <h3 style="margin: 0;">🚀 开始使用 →</h3>
+                </a>
+            </div>
+        </section>
+
         {% for category_key, category in tutorials.items() %}
         <section class="category">
             <h2>{{ category.title }}</h2>
