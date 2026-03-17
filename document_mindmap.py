@@ -13,12 +13,24 @@ import hashlib
 import shutil
 import http.client
 import re
+import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import sqlite3
 from PIL import Image
 import io
+
+# 配置日志
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('/tmp/document_mindmap.log', encoding='utf-8')
+    ]
+)
+logger = logging.getLogger(__name__)
 
 
 class DocumentMindMapGenerator:
@@ -292,18 +304,32 @@ class DocumentMindMapGenerator:
         Returns:
             压缩后的图片 bytes
         """
+        logger.info(f"开始压缩图片: {image_path}")
+        
+        # 获取原图信息
+        original_size = os.path.getsize(image_path)
+        logger.info(f"原图大小: {original_size / 1024:.2f} KB")
+        
         with Image.open(image_path) as img:
+            logger.info(f"图片尺寸: {img.size}, 模式: {img.mode}")
             # 转换为 RGB（处理 PNG 透明通道）
             if img.mode in ('RGBA', 'LA', 'P'):
+                logger.info(f"转换图片模式: {img.mode} -> RGB")
                 img = img.convert('RGB')
             
             # 等比例缩放
+            original_dimensions = img.size
             img.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
+            logger.info(f"缩放图片: {original_dimensions} -> {img.size}")
             
             # 保存到内存
             buffer = io.BytesIO()
             img.save(buffer, format='JPEG', quality=quality, optimize=True)
-            return buffer.getvalue()
+            compressed_bytes = buffer.getvalue()
+            compressed_size = len(compressed_bytes)
+            logger.info(f"压缩后大小: {compressed_size / 1024:.2f} KB (压缩率: {compressed_size/original_size*100:.1f}%)")
+            
+            return compressed_bytes
     
     def save_image(self, image_path: str) -> str:
         """保存图片到上传目录"""
@@ -344,14 +370,19 @@ class DocumentMindMapGenerator:
         Returns:
             分析结果
         """
+        logger.info(f"开始分析文档: image_path={image_path}, scenario={scenario}, question={question}")
+        
         # 压缩并编码图片
         try:
             compressed_image = self.compress_image(image_path)
             image_base64 = base64.b64encode(compressed_image).decode('utf-8')
+            logger.info(f"图片 base64 编码完成, 长度: {len(image_base64)} 字符")
         except Exception as e:
+            logger.error(f"图片压缩失败: {e}, 尝试使用原图")
             # 如果压缩失败，使用原图
             with open(image_path, 'rb') as f:
                 image_base64 = base64.b64encode(f.read()).decode('utf-8')
+            logger.info(f"原图 base64 编码完成, 长度: {len(image_base64)} 字符")
         
         # 获取场景配置
         scenario_config = self.SCENARIOS.get(scenario, self.SCENARIOS["general"])
@@ -391,7 +422,12 @@ class DocumentMindMapGenerator:
             }
         })
         
+        request_body_size = len(request_body.encode('utf-8'))
+        logger.info(f"请求体大小: {request_body_size / 1024:.2f} KB")
+        logger.debug(f"请求体内容: {request_body[:500]}...")
+        
         # 发送请求
+        logger.info("开始发送 API 请求到 dashscope.aliyuncs.com")
         try:
             conn = http.client.HTTPSConnection("dashscope.aliyuncs.com", timeout=60)
             headers = {
@@ -399,6 +435,7 @@ class DocumentMindMapGenerator:
                 'Content-Type': 'application/json'
             }
             
+            logger.info("建立 HTTPS 连接...")
             conn.request(
                 "POST",
                 "/api/v1/services/aigc/multimodal-generation/generation",
@@ -406,23 +443,45 @@ class DocumentMindMapGenerator:
                 headers=headers
             )
             
+            logger.info("等待 API 响应...")
             response = conn.getresponse()
+            logger.info(f"收到响应: status={response.status}, reason={response.reason}")
+            
             result = response.read().decode('utf-8')
+            logger.info(f"响应内容长度: {len(result)} 字符")
+            logger.debug(f"响应内容: {result[:500]}...")
+            
             conn.close()
+            logger.info("连接已关闭")
             
             # 解析响应
+            logger.info("解析 API 响应...")
             result_json = json.loads(result)
             
             if 'output' in result_json and 'choices' in result_json['output']:
                 content = result_json['output']['choices'][0]['message']['content']
+                logger.info(f"API 返回内容类型: {type(content)}")
                 
                 if isinstance(content, list):
                     text = content[0].get('text', '') if content else ''
                 else:
                     text = content
                 
+                logger.info(f"提取的文本长度: {len(text)} 字符")
+                logger.debug(f"提取的文本内容: {text[:500]}...")
+                
                 # 提取 JSON
                 analysis = self._extract_json(text)
+                
+                if 'error' in analysis:
+                    logger.error(f"JSON 解析失败: {analysis['error']}")
+                    return {
+                        'success': False,
+                        'error': f'JSON 解析失败: {analysis["error"]}',
+                        'raw_text': analysis.get('raw_text', '')
+                    }
+                
+                logger.info(f"JSON 解析成功, 包含字段: {list(analysis.keys())}")
                 
                 # 保存会话
                 if not session_id:
@@ -430,6 +489,7 @@ class DocumentMindMapGenerator:
                 
                 saved_path = self.save_image(image_path)
                 self._save_session(session_id, scenario, saved_path, analysis, question)
+                logger.info(f"会话已保存: session_id={session_id}")
                 
                 return {
                     'success': True,
@@ -438,13 +498,27 @@ class DocumentMindMapGenerator:
                     'mindmap_data': analysis.get('mindmap_structure', {})
                 }
             else:
+                logger.error(f"API 响应格式异常: {result_json.keys()}")
                 return {
                     'success': False,
                     'error': 'API 响应格式异常',
                     'raw_response': result_json
                 }
                 
+        except http.client.HTTPException as e:
+            logger.error(f"HTTP 请求异常: {type(e).__name__}: {e}")
+            return {
+                'success': False,
+                'error': f'HTTP 请求失败: {str(e)}'
+            }
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON 解析异常: {e}")
+            return {
+                'success': False,
+                'error': f'响应解析失败: {str(e)}'
+            }
         except Exception as e:
+            logger.exception(f"未知异常: {type(e).__name__}: {e}")
             return {
                 'success': False,
                 'error': str(e)
