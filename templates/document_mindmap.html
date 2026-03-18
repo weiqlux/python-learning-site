@@ -108,18 +108,47 @@
                     </div>
                 </div>
 
-                <!-- 图片上传 -->
+                <!-- 输入方式选择 -->
                 <div class="bg-white rounded-xl shadow-sm p-6">
-                    <h2 class="text-lg font-semibold mb-4">📎 上传文档图片</h2>
-                    <div id="upload-area" class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-blue-400 transition-colors">
-                        <div class="text-4xl mb-3">📤</div>
-                        <p class="text-gray-600 mb-2">点击或拖拽上传图片</p>
-                        <p class="text-sm text-gray-400">支持 JPG、PNG、WebP 格式</p>
-                        <input type="file" id="file-input" class="hidden" accept="image/*">
+                    <h2 class="text-lg font-semibold mb-4">📝 输入方式</h2>
+                    <div class="flex space-x-2 mb-4">
+                        <button onclick="switchInputMode('image')" id="btn-image-mode" class="flex-1 py-2 px-4 rounded-lg border-2 border-blue-500 bg-blue-50 text-blue-700 font-medium transition-colors">
+                            📎 图片上传
+                        </button>
+                        <button onclick="switchInputMode('text')" id="btn-text-mode" class="flex-1 py-2 px-4 rounded-lg border-2 border-gray-200 text-gray-600 font-medium transition-colors hover:border-gray-300">
+                            📝 文本输入
+                        </button>
                     </div>
-                    <div id="image-preview" class="hidden mt-4">
-                        <img id="preview-img" class="max-h-64 mx-auto rounded-lg shadow-md" alt="预览">
-                        <button onclick="clearImage()" class="mt-2 text-red-500 text-sm hover:underline">🗑️ 清除图片</button>
+
+                    <!-- 图片上传区域 -->
+                    <div id="image-input-area">
+                        <div id="upload-area" class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-blue-400 transition-colors">
+                            <div class="text-4xl mb-3">📤</div>
+                            <p class="text-gray-600 mb-2">点击或拖拽上传图片</p>
+                            <p class="text-sm text-gray-400">支持 JPG、PNG、WebP 格式</p>
+                            <input type="file" id="file-input" class="hidden" accept="image/*">
+                        </div>
+                        <div id="image-preview" class="hidden mt-4">
+                            <img id="preview-img" class="max-h-64 mx-auto rounded-lg shadow-md" alt="预览">
+                            <button onclick="clearImage()" class="mt-2 text-red-500 text-sm hover:underline">🗑️ 清除图片</button>
+                        </div>
+                    </div>
+
+                    <!-- 文本输入区域 -->
+                    <div id="text-input-area" class="hidden">
+                        <textarea id="text-content" rows="8" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" placeholder="在此输入文本内容，AI 将为你生成思维导图...
+
+例如：
+人工智能的发展历程可以分为三个阶段：
+1. 符号主义阶段（1950s-1980s）：基于逻辑推理和知识表示
+2. 连接主义阶段（1980s-2010s）：神经网络和机器学习的兴起
+3. 深度学习阶段（2010s-至今）：大数据驱动的深度神经网络"></textarea>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="text-sm text-gray-400" id="text-char-count">0 / 10000 字</span>
+                            <button onclick="generateFromText()" id="btn-generate-text" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                ✨ 生成思维导图
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -159,6 +188,8 @@
                         <div class="space-x-2">
                             <button onclick="expandAll()" class="text-sm text-blue-600 hover:underline">展开全部</button>
                             <button onclick="collapseAll()" class="text-sm text-blue-600 hover:underline">收起全部</button>
+                            <button onclick="exportToXmind()" class="text-sm bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition-colors">📥 导出 .xmind</button>
+                            <button onclick="exportToMermaid()" class="text-sm bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700 transition-colors">📋 Mermaid</button>
                         </div>
                     </div>
                     <div id="mindmap-container" class="border rounded-lg overflow-hidden">
@@ -486,12 +517,271 @@
             rawData.classList.toggle('hidden');
         }
 
+        // 切换输入模式
+        function switchInputMode(mode) {
+            const imageArea = document.getElementById('image-input-area');
+            const textArea = document.getElementById('text-input-area');
+            const btnImage = document.getElementById('btn-image-mode');
+            const btnText = document.getElementById('btn-text-mode');
+            const chatHint = document.querySelector('#chat-history .text-center');
+            
+            if (mode === 'image') {
+                imageArea.classList.remove('hidden');
+                textArea.classList.add('hidden');
+                btnImage.classList.add('border-blue-500', 'bg-blue-50', 'text-blue-700');
+                btnImage.classList.remove('border-gray-200', 'text-gray-600');
+                btnText.classList.remove('border-blue-500', 'bg-blue-50', 'text-blue-700');
+                btnText.classList.add('border-gray-200', 'text-gray-600');
+                if (chatHint) {
+                    chatHint.innerHTML = '<p>👆 上传图片后，输入你的问题开始分析</p><p class="text-sm mt-2">例如："提取这个表格中的数据"、"解释这个流程图"</p>';
+                }
+            } else {
+                imageArea.classList.add('hidden');
+                textArea.classList.remove('hidden');
+                btnText.classList.add('border-blue-500', 'bg-blue-50', 'text-blue-700');
+                btnText.classList.remove('border-gray-200', 'text-gray-600');
+                btnImage.classList.remove('border-blue-500', 'bg-blue-50', 'text-blue-700');
+                btnImage.classList.add('border-gray-200', 'text-gray-600');
+                if (chatHint) {
+                    chatHint.innerHTML = '<p>👆 输入文本内容后，点击"生成思维导图"按钮</p><p class="text-sm mt-2">AI 将根据你的文本自动生成思维导图</p>';
+                }
+            }
+        }
+
+        // 文本输入字数统计
+        document.getElementById('text-content').addEventListener('input', function() {
+            const count = this.value.length;
+            document.getElementById('text-char-count').textContent = `${count} / 10000 字`;
+            if (count > 10000) {
+                document.getElementById('text-char-count').classList.add('text-red-500');
+            } else {
+                document.getElementById('text-char-count').classList.remove('text-red-500');
+            }
+        });
+
+        // 从文本生成思维导图
+        async function generateFromText() {
+            const textContent = document.getElementById('text-content').value.trim();
+            
+            if (!textContent) {
+                alert('请输入文本内容');
+                return;
+            }
+            
+            if (textContent.length > 10000) {
+                alert('文本内容过长，请控制在10000字以内');
+                return;
+            }
+
+            const btn = document.getElementById('btn-generate-text');
+            btn.disabled = true;
+            btn.textContent = '生成中...';
+
+            // 添加用户消息
+            addMessage('user', '📝 文本输入：' + textContent.substring(0, 100) + (textContent.length > 100 ? '...' : ''));
+
+            try {
+                const response = await fetch('/api/document/text-to-mindmap', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: textContent,
+                        scenario: currentScenario
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentSessionId = result.session_id;
+                    addMessage('ai', '✅ 思维导图已生成！');
+                    renderMindmap(result.mindmap_data);
+                    renderAnalysis(result.analysis);
+                    document.getElementById('raw-data').textContent = JSON.stringify(result, null, 2);
+                } else {
+                    addMessage('ai', '❌ 生成失败：' + (result.error || '未知错误'));
+                }
+            } catch (error) {
+                addMessage('ai', '❌ 请求失败：' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '✨ 生成思维导图';
+            }
+        }
+
         function expandAll() {
             // markmap 自动处理
         }
 
         function collapseAll() {
             // markmap 自动处理
+        }
+
+        // 导出为 XMind 文件
+        async function exportToXmind() {
+            if (!currentSessionId) {
+                alert('请先生成思维导图');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/document/export/xmind/${currentSessionId}`);
+                
+                if (response.ok) {
+                    // 获取文件名
+                    const contentDisposition = response.headers.get('content-disposition');
+                    let filename = '思维导图.xmind';
+                    if (contentDisposition) {
+                        const match = contentDisposition.match(/filename="?([^"]+)"?/);
+                        if (match) {
+                            filename = match[1];
+                        }
+                    }
+                    
+                    // 下载文件
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                } else {
+                    const result = await response.json();
+                    alert('导出失败：' + (result.error || '未知错误'));
+                }
+            } catch (error) {
+                alert('导出失败：' + error.message);
+            }
+        }
+
+        // 导出为 Mermaid 思维导图语法
+        async function exportToMermaid() {
+            if (!currentSessionId) {
+                alert('请先生成思维导图');
+                return;
+            }
+
+            try {
+                // 获取当前会话数据
+                const response = await fetch(`/api/document/session/${currentSessionId}`);
+                const session = await response.json();
+                
+                if (!session || !session.mindmap_data) {
+                    alert('没有思维导图数据');
+                    return;
+                }
+
+                // 转换为 Mermaid mindmap 语法
+                const mermaidCode = convertToMermaid(session.mindmap_data);
+                
+                // 创建模态框显示代码
+                showMermaidModal(mermaidCode);
+            } catch (error) {
+                alert('导出失败：' + error.message);
+            }
+        }
+
+        // 将思维导图数据转换为 Mermaid 语法
+        function convertToMermaid(mindmapData) {
+            if (!mindmapData || !mindmapData.root) {
+                return 'mindmap\n  暂无数据';
+            }
+
+            let lines = ['mindmap'];
+            
+            // 递归生成 Mermaid 语法
+            function generateNode(node, indent) {
+                const spaces = '  '.repeat(indent);
+                lines.push(`${spaces}${node.name || '未命名'}`);
+                
+                if (node.children && node.children.length > 0) {
+                    node.children.forEach(child => {
+                        generateNode(child, indent + 1);
+                    });
+                }
+            }
+
+            // 根节点
+            lines.push(`  ${mindmapData.root}`);
+            
+            // 子节点
+            if (mindmapData.children && mindmapData.children.length > 0) {
+                mindmapData.children.forEach(child => {
+                    generateNode(child, 2);
+                });
+            }
+
+            return lines.join('\n');
+        }
+
+        // 显示 Mermaid 代码模态框
+        function showMermaidModal(mermaidCode) {
+            // 创建模态框
+            const modal = document.createElement('div');
+            modal.id = 'mermaid-modal';
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+            modal.innerHTML = `
+                <div class="bg-white rounded-xl max-w-3xl w-full mx-4 max-h-[90vh] overflow-hidden shadow-2xl">
+                    <div class="p-6 border-b flex justify-between items-center bg-gray-50">
+                        <h3 class="text-lg font-semibold">📋 Mermaid 思维导图代码</h3>
+                        <button onclick="closeMermaidModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                    </div>
+                    <div class="p-6 overflow-y-auto max-h-[70vh]">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Mermaid 代码（可直接复制到支持 Mermaid 的编辑器中使用）</label>
+                            <textarea id="mermaid-code" class="w-full h-64 font-mono text-sm bg-gray-900 text-green-400 p-4 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-500" readonly>${mermaidCode}</textarea>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-blue-800 mb-2">💡 使用说明</h4>
+                            <ul class="text-sm text-blue-700 list-disc list-inside space-y-1">
+                                <li>复制上方代码到支持 Mermaid 的编辑器（如 Typora、Notion、GitHub、GitLab）</li>
+                                <li>或使用 <a href="https://mermaid.live" target="_blank" class="underline">Mermaid Live Editor</a> 在线预览</li>
+                                <li>支持的语法格式：Mermaid v9.0+ 的 mindmap 类型</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="p-6 border-t bg-gray-50 flex justify-end space-x-3">
+                        <button onclick="copyMermaidCode()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                            📋 复制代码
+                        </button>
+                        <button onclick="closeMermaidModal()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors">
+                            关闭
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // 关闭 Mermaid 模态框
+        function closeMermaidModal() {
+            const modal = document.getElementById('mermaid-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // 复制 Mermaid 代码到剪贴板
+        function copyMermaidCode() {
+            const textarea = document.getElementById('mermaid-code');
+            textarea.select();
+            document.execCommand('copy');
+            
+            // 显示复制成功提示
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '✅ 已复制';
+            btn.classList.add('bg-green-600');
+            btn.classList.remove('bg-purple-600');
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.classList.remove('bg-green-600');
+                btn.classList.add('bg-purple-600');
+            }, 2000);
         }
 
         // 历史记录

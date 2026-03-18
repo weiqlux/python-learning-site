@@ -14,12 +14,22 @@ import shutil
 import http.client
 import re
 import logging
+import zipfile
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import sqlite3
 from PIL import Image
 import io
+
+# 尝试导入 xmind 库，如果失败则使用备用方案
+try:
+    import xmind
+    XMind_AVAILABLE = True
+except ImportError:
+    XMind_AVAILABLE = False
+    logger = logging.getLogger(__name__)
+    logger.warning("xmind 库未安装，将使用备用方案生成 .xmind 文件")
 
 # 配置日志
 logging.basicConfig(
@@ -319,7 +329,12 @@ class DocumentMindMapGenerator:
             
             # 等比例缩放
             original_dimensions = img.size
-            img.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
+            # 兼容不同 PIL 版本
+            try:
+                resampling = Image.Resampling.LANCZOS
+            except AttributeError:
+                resampling = Image.ANTIALIAS  # 旧版本使用 ANTIALIAS
+            img.thumbnail((max_size, max_size), resampling)
             logger.info(f"缩放图片: {original_dimensions} -> {img.size}")
             
             # 保存到内存
@@ -428,6 +443,9 @@ class DocumentMindMapGenerator:
         
         # 发送请求
         logger.info("开始发送 API 请求到 dashscope.aliyuncs.com")
+        logger.info(f"API Key 状态: {'已配置' if self.api_key else '未配置'}, 长度: {len(self.api_key) if self.api_key else 0}")
+        logger.debug(f"API Key: {self.api_key[:20]}..." if self.api_key else "API Key: None")
+        
         try:
             conn = http.client.HTTPSConnection("dashscope.aliyuncs.com", timeout=60)
             headers = {
@@ -435,6 +453,7 @@ class DocumentMindMapGenerator:
                 'Content-Type': 'application/json'
             }
             
+            logger.info(f"请求头: {headers}")
             logger.info("建立 HTTPS 连接...")
             conn.request(
                 "POST",
@@ -829,6 +848,348 @@ class DocumentMindMapGenerator:
             for s in sessions
         ]
     
+    def generate_mindmap_from_text(
+        self,
+        text: str,
+        scenario: str = "general",
+        session_id: str = None
+    ) -> Dict:
+        """
+        从纯文本生成思维导图（无需图片）
+        
+        Args:
+            text: 用户输入的文本内容
+            scenario: 分析场景
+            session_id: 会话ID（可选）
+            
+        Returns:
+            分析结果，包含思维导图结构
+        """
+        logger.info(f"开始从文本生成思维导图: scenario={scenario}, text_length={len(text)}")
+        
+        # 获取场景配置
+        scenario_config = self.SCENARIOS.get(scenario, self.SCENARIOS["general"])
+        
+        # 构建系统提示词 - 专门针对纯文本输入
+        system_prompt = f"""你是一位专业的文档分析和知识结构化专家。请根据用户提供的文本内容，分析并生成思维导图结构。
+
+分析要求：
+1. 提取文本的核心主题和关键信息
+2. 识别主要概念和它们之间的层级关系
+3. 归纳要点，形成清晰的树状结构
+4. 确保思维导图覆盖文本的主要内容
+
+输出格式必须是严格的 JSON：
+{{
+    "document_type": "{scenario}",
+    "title": "文档标题",
+    "key_content": ["要点1", "要点2", "要点3"],
+    "summary": "文档总结",
+    "mindmap_structure": {{
+        "root": "中心主题",
+        "children": [
+            {{
+                "name": "一级节点",
+                "children": [
+                    {{"name": "二级节点"}},
+                    {{"name": "二级节点"}}
+                ]
+            }}
+        ]
+    }}
+}}
+
+请确保 mindmap_structure 是一个有效的树形结构，包含 root 和 children 字段。"""
+        
+        # 构建用户提示
+        user_prompt = f"""{system_prompt}
+
+用户输入的文本内容：
+---
+{text}
+---
+
+请分析以上内容，返回 JSON 格式的思维导图结构。"""
+        
+        # 构建请求 - 纯文本模式，不包含图片
+        request_body = json.dumps({
+            "model": "qwen-max",  # 使用文本模型，不需要多模态
+            "input": {
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": user_prompt
+                    }
+                ]
+            },
+            "parameters": {
+                "result_format": "message"
+            }
+        })
+        
+        logger.info(f"请求体大小: {len(request_body.encode('utf-8')) / 1024:.2f} KB")
+        
+        try:
+            conn = http.client.HTTPSConnection("dashscope.aliyuncs.com", timeout=60)
+            headers = {
+                'Authorization': f'Bearer {self.api_key}',
+                'Content-Type': 'application/json'
+            }
+            
+            conn.request(
+                "POST",
+                "/api/v1/services/aigc/text-generation/generation",
+                body=request_body,
+                headers=headers
+            )
+            
+            response = conn.getresponse()
+            result = response.read().decode('utf-8')
+            conn.close()
+            
+            logger.info(f"API 响应长度: {len(result)} 字符")
+            
+            # 解析响应
+            result_json = json.loads(result)
+            
+            if 'output' in result_json and 'choices' in result_json['output']:
+                content = result_json['output']['choices'][0]['message']['content']
+                
+                if isinstance(content, list):
+                    text_content = content[0].get('text', '') if content else ''
+                else:
+                    text_content = content
+                
+                logger.info(f"提取的文本长度: {len(text_content)} 字符")
+                
+                # 提取 JSON
+                analysis = self._extract_json(text_content)
+                
+                if 'error' in analysis:
+                    logger.error(f"JSON 解析失败: {analysis['error']}")
+                    return {
+                        'success': False,
+                        'error': f'JSON 解析失败: {analysis["error"]}',
+                        'raw_text': analysis.get('raw_text', '')
+                    }
+                
+                logger.info(f"JSON 解析成功, 包含字段: {list(analysis.keys())}")
+                
+                # 生成会话ID
+                if not session_id:
+                    session_id = f"text_session_{datetime.now().strftime('%Y%m%d%H%M%S')}_{hashlib.md5(text.encode()).hexdigest()[:6]}"
+                
+                # 保存会话（纯文本模式，image_path 为空）
+                self._save_text_session(session_id, scenario, analysis, text)
+                logger.info(f"会话已保存: session_id={session_id}")
+                
+                return {
+                    'success': True,
+                    'session_id': session_id,
+                    'analysis': analysis,
+                    'mindmap_data': analysis.get('mindmap_structure', {})
+                }
+            else:
+                logger.error(f"API 响应格式异常: {result_json.keys()}")
+                return {
+                    'success': False,
+                    'error': 'API 响应格式异常',
+                    'raw_response': result_json
+                }
+                
+        except Exception as e:
+            logger.exception(f"生成思维导图失败: {type(e).__name__}: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def _save_text_session(
+        self,
+        session_id: str,
+        document_type: str,
+        analysis: Dict,
+        source_text: str
+    ):
+        """保存纯文本会话到数据库"""
+        conn = self._get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            INSERT INTO document_sessions 
+            (session_id, document_type, document_title, image_path, analysis_result, mindmap_data)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (session_id, document_type,
+              analysis.get('title', '未命名文档'),
+              '',  # 纯文本模式，无图片路径
+              json.dumps(analysis, ensure_ascii=False),
+              json.dumps(analysis.get('mindmap_structure', {}), ensure_ascii=False)))
+        
+        # 保存原始文本作为第一条对话
+        cursor.execute('''
+            INSERT INTO chat_history (session_id, role, content)
+            VALUES (?, ?, ?)
+        ''', (session_id, 'user', f"[文本输入] {source_text[:500]}..." if len(source_text) > 500 else f"[文本输入] {source_text}"))
+        
+        cursor.execute('''
+            INSERT INTO chat_history (session_id, role, content)
+            VALUES (?, ?, ?)
+        ''', (session_id, 'assistant', json.dumps(analysis, ensure_ascii=False)))
+        
+        conn.commit()
+        conn.close()
+
+    def export_to_xmind(self, mindmap_data: Dict, output_path: str = None, title: str = "思维导图") -> str:
+        """
+        将思维导图导出为 .xmind 文件
+        
+        Args:
+            mindmap_data: 思维导图数据结构
+            output_path: 输出文件路径（可选，默认生成临时文件）
+            title: 思维导图标题
+            
+        Returns:
+            生成的 .xmind 文件路径
+        """
+        if not mindmap_data:
+            raise ValueError("思维导图数据为空")
+        
+        # 如果没有指定输出路径，生成临时文件
+        if not output_path:
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            output_path = f"/tmp/mindmap_{timestamp}.xmind"
+        
+        if XMind_AVAILABLE:
+            # 使用 xmind 库生成
+            return self._export_with_xmind_lib(mindmap_data, output_path, title)
+        else:
+            # 使用备用方案生成
+            return self._export_with_fallback(mindmap_data, output_path, title)
+    
+    def _export_with_xmind_lib(self, mindmap_data: Dict, output_path: str, title: str) -> str:
+        """使用 xmind 库生成 .xmind 文件"""
+        # 创建工作簿
+        workbook = xmind.load(output_path)
+        sheet = workbook.getPrimarySheet()
+        sheet.setTitle(title)
+        
+        # 获取根主题
+        root_topic = sheet.getRootTopic()
+        root_topic.setTitle(mindmap_data.get('root', title))
+        
+        # 递归添加子节点
+        def add_children(parent_topic, children_data):
+            if not children_data:
+                return
+            for child in children_data:
+                child_topic = parent_topic.addSubTopic()
+                child_topic.setTitle(child.get('name', '未命名'))
+                # 递归添加子节点
+                if 'children' in child and child['children']:
+                    add_children(child_topic, child['children'])
+        
+        # 从根节点开始添加
+        children = mindmap_data.get('children', [])
+        add_children(root_topic, children)
+        
+        # 保存文件
+        xmind.save(workbook, output_path)
+        return output_path
+    
+    def _export_with_fallback(self, mindmap_data: Dict, output_path: str, title: str) -> str:
+        """
+        使用备用方案生成 .xmind 文件
+        XMind 文件本质上是 ZIP 压缩包，包含 XML 内容
+        """
+        import xml.etree.ElementTree as ET
+        
+        # 创建临时目录
+        temp_dir = f"/tmp/xmind_temp_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        os.makedirs(temp_dir, exist_ok=True)
+        
+        # 创建 content.xml
+        content_root = ET.Element("xmap-content", {
+            "version": "2.0",
+            "xmlns": "urn:xmind:xmap:xmlns:content:2.0"
+        })
+        
+        # 创建 sheet
+        sheet_elem = ET.SubElement(content_root, "sheet", {"id": "1"})
+        title_elem = ET.SubElement(sheet_elem, "title")
+        title_elem.text = title
+        
+        # 创建根主题
+        root_topic_elem = ET.SubElement(sheet_elem, "topic", {
+            "id": "root",
+            "structure-class": "org.xmind.ui.map.unbalanced"
+        })
+        root_title = ET.SubElement(root_topic_elem, "title")
+        root_title.text = mindmap_data.get('root', title)
+        
+        # 递归添加子节点
+        def add_children_xml(parent_elem, children_data, parent_id="root"):
+            if not children_data:
+                return
+            children_elem = ET.SubElement(parent_elem, "children")
+            topics_elem = ET.SubElement(children_elem, "topics", {"type": "attached"})
+            
+            for i, child in enumerate(children_data):
+                child_id = f"{parent_id}_{i}"
+                child_topic = ET.SubElement(topics_elem, "topic", {"id": child_id})
+                child_title = ET.SubElement(child_topic, "title")
+                child_title.text = child.get('name', '未命名')
+                
+                # 递归添加子节点
+                if 'children' in child and child['children']:
+                    add_children_xml(child_topic, child['children'], child_id)
+        
+        # 添加根节点的子节点
+        children = mindmap_data.get('children', [])
+        if children:
+            add_children_xml(root_topic_elem, children)
+        
+        # 写入 content.xml
+        content_tree = ET.ElementTree(content_root)
+        content_path = os.path.join(temp_dir, "content.xml")
+        content_tree.write(content_path, encoding='UTF-8', xml_declaration=True)
+        
+        # 创建 META-INF/manifest.xml
+        meta_inf_dir = os.path.join(temp_dir, "META-INF")
+        os.makedirs(meta_inf_dir, exist_ok=True)
+        
+        manifest_root = ET.Element("manifest", {
+            "xmlns": "urn:xmind:xmap:xmlns:manifest:1.0"
+        })
+        ET.SubElement(manifest_root, "file-entry", {
+            "full-path": "content.xml",
+            "media-type": "text/xml"
+        })
+        ET.SubElement(manifest_root, "file-entry", {
+            "full-path": "META-INF/",
+            "media-type": ""
+        })
+        ET.SubElement(manifest_root, "file-entry", {
+            "full-path": "META-INF/manifest.xml",
+            "media-type": "text/xml"
+        })
+        
+        manifest_tree = ET.ElementTree(manifest_root)
+        manifest_path = os.path.join(meta_inf_dir, "manifest.xml")
+        manifest_tree.write(manifest_path, encoding='UTF-8', xml_declaration=True)
+        
+        # 打包为 .xmind 文件（ZIP 格式）
+        with zipfile.ZipFile(output_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+            for root, dirs, files in os.walk(temp_dir):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    arcname = os.path.relpath(file_path, temp_dir)
+                    zf.write(file_path, arcname)
+        
+        # 清理临时目录
+        shutil.rmtree(temp_dir)
+        
+        return output_path
+
     def generate_mindmap_html(self, mindmap_data: Dict) -> str:
         """生成思维导图的 HTML 代码（使用 Markmap）"""
         if not mindmap_data:
@@ -887,6 +1248,12 @@ def chat_with_document(session_id: str, question: str) -> Dict:
     """便捷函数：与文档对话"""
     generator = DocumentMindMapGenerator()
     return generator.chat(session_id, question)
+
+
+def generate_mindmap_from_text(text: str, scenario: str = "general") -> Dict:
+    """便捷函数：从纯文本生成思维导图"""
+    generator = DocumentMindMapGenerator()
+    return generator.generate_mindmap_from_text(text, scenario)
 
 
 if __name__ == '__main__':

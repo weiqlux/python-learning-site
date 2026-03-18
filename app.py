@@ -2,13 +2,15 @@
 # -*- coding: utf-8 -*-
 """Python 学习网站 - Flask 应用"""
 
-from flask import Flask, render_template, jsonify, request, redirect, url_for
+from flask import Flask, render_template, jsonify, request, redirect, url_for, send_file
 from werkzeug.utils import secure_filename
 import os
 import json
 import signal
 import sys
 import logging
+import io
+import re
 from datetime import datetime
 from question_manager import (
     add_question, get_question, get_questions_by_date, search_questions,
@@ -53,7 +55,9 @@ init_ocr_db()
 ocr_analyzer = OCRQuestionAnalyzer()
 
 # 文档分析与思维导图生成器初始化
-doc_mindmap_generator = DocumentMindMapGenerator()
+api_key = os.environ.get('DASHSCOPE_API_KEY', '')
+logger.info(f"DASHSCOPE_API_KEY 环境变量: {'已设置' if api_key else '未设置'}")
+doc_mindmap_generator = DocumentMindMapGenerator({'api_key': api_key})
 
 # 英语翻译练习素材
 TRANSLATION_EXERCISES = {
@@ -1135,36 +1139,66 @@ def api_document_analyze():
         # 检查文件
         if 'image' not in request.files:
             return jsonify({'success': False, 'error': '未找到图片文件'}), 400
-        
+
         file = request.files['image']
         if file.filename == '':
             return jsonify({'success': False, 'error': '未选择文件'}), 400
-        
+
         # 保存临时文件
         temp_path = f'/tmp/doc_{datetime.now().timestamp()}.jpg'
         file.save(temp_path)
-        
+
         # 获取参数
         question = request.form.get('question', '')
         scenario = request.form.get('scenario', 'general')
-        
+
         # 分析文档
         result = doc_mindmap_generator.analyze_document(
             image_path=temp_path,
             question=question if question else None,
             scenario=scenario
         )
-        
+
         # 清理临时文件
         try:
             os.remove(temp_path)
         except:
             pass
-        
+
         return jsonify(result)
-        
+
     except Exception as e:
         logger.error(f"文档分析失败：{e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/document/text-to-mindmap', methods=['POST'])
+def api_text_to_mindmap():
+    """API: 从纯文本生成思维导图（无需图片）"""
+    try:
+        data = request.json
+        text = data.get('text', '').strip()
+        scenario = data.get('scenario', 'general')
+
+        if not text:
+            return jsonify({'success': False, 'error': '文本内容不能为空'}), 400
+
+        if len(text) > 10000:
+            return jsonify({'success': False, 'error': '文本内容过长，请控制在10000字以内'}), 400
+
+        # 从文本生成思维导图
+        result = doc_mindmap_generator.generate_mindmap_from_text(
+            text=text,
+            scenario=scenario
+        )
+
+        return jsonify(result)
+
+    except Exception as e:
+        logger.error(f"文本生成思维导图失败：{e}")
         return jsonify({
             'success': False,
             'error': str(e)
@@ -1232,6 +1266,110 @@ def api_document_scenarios():
         return jsonify(scenarios)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/document/export/xmind', methods=['POST'])
+def api_export_xmind():
+    """API: 导出思维导图为 .xmind 文件"""
+    try:
+        data = request.json
+        session_id = data.get('session_id')
+        mindmap_data = data.get('mindmap_data')
+        title = data.get('title', '思维导图')
+        
+        # 如果提供了 session_id，从数据库获取数据
+        if session_id:
+            session = doc_mindmap_generator.get_session(session_id)
+            if not session:
+                return jsonify({'success': False, 'error': '会话不存在'}), 404
+            mindmap_data = session.get('mindmap_data', {})
+            title = session.get('document_title', title)
+        
+        if not mindmap_data:
+            return jsonify({'success': False, 'error': '没有思维导图数据'}), 400
+        
+        # 生成安全的文件名
+        safe_title = re.sub(r'[^\w\u4e00-\u9fa5\-]', '_', title)[:50]
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"{safe_title}_{timestamp}.xmind"
+        output_path = f"/tmp/{filename}"
+        
+        # 导出为 xmind 文件
+        export_path = doc_mindmap_generator.export_to_xmind(
+            mindmap_data=mindmap_data,
+            output_path=output_path,
+            title=title
+        )
+        
+        # 读取文件并返回
+        with open(export_path, 'rb') as f:
+            file_data = f.read()
+        
+        # 清理临时文件
+        try:
+            os.remove(export_path)
+        except:
+            pass
+        
+        return send_file(
+            io.BytesIO(file_data),
+            mimetype='application/xmind',
+            as_attachment=True,
+            download_name=filename
+        )
+        
+    except Exception as e:
+        logger.error(f"导出 XMind 失败：{e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/document/export/xmind/<session_id>')
+def api_export_xmind_by_session(session_id):
+    """API: 通过会话ID导出思维导图为 .xmind 文件"""
+    try:
+        session = doc_mindmap_generator.get_session(session_id)
+        if not session:
+            return jsonify({'success': False, 'error': '会话不存在'}), 404
+        
+        mindmap_data = session.get('mindmap_data', {})
+        if not mindmap_data:
+            return jsonify({'success': False, 'error': '该会话没有思维导图数据'}), 400
+        
+        title = session.get('document_title', '思维导图')
+        
+        # 生成安全的文件名
+        safe_title = re.sub(r'[^\w\u4e00-\u9fa5\-]', '_', title)[:50]
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"{safe_title}_{timestamp}.xmind"
+        output_path = f"/tmp/{filename}"
+        
+        # 导出为 xmind 文件
+        export_path = doc_mindmap_generator.export_to_xmind(
+            mindmap_data=mindmap_data,
+            output_path=output_path,
+            title=title
+        )
+        
+        # 读取文件并返回
+        with open(export_path, 'rb') as f:
+            file_data = f.read()
+        
+        # 清理临时文件
+        try:
+            os.remove(export_path)
+        except:
+            pass
+        
+        return send_file(
+            io.BytesIO(file_data),
+            mimetype='application/xmind',
+            as_attachment=True,
+            download_name=filename
+        )
+        
+    except Exception as e:
+        logger.error(f"导出 XMind 失败：{e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 # 优雅关闭处理
