@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金刚经三十二品纲要 | Python学习网站</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Serif SC', 'SimSun', 'STSong', serif;
+            background: linear-gradient(135deg, #f5f0e8 0%, #e8e0d0 100%);
+            min-height: 100vh;
+            color: #3a3a3a;
+            line-height: 1.8;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* 头部样式 */
+        .header {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(180deg, #8b4513 0%, #a0522d 100%);
+            color: #fff8dc;
+            border-radius: 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 40px rgba(139, 69, 19, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            position: relative;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 0.1em;
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            position: relative;
+            font-weight: 400;
+        }
+
+        .header .intro {
+            max-width: 700px;
+            margin: 25px auto 0;
+            font-size: 1em;
+            line-height: 1.9;
+            opacity: 0.95;
+            position: relative;
+        }
+
+        /* 核心要义卡片 */
+        .core-concepts {
+            background: linear-gradient(135deg, #fff8dc 0%, #f5f5dc 100%);
+            border-radius: 15px;
+            padding: 35px;
+            margin-bottom: 40px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border: 2px solid #d4af37;
+        }
+
+        .core-concepts h2 {
+            color: #8b4513;
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .core-concepts h2::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #d4af37, transparent);
+            margin: 15px auto 0;
+        }
+
+        .concepts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .concept-item {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #d4af37;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .concept-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .concept-item h3 {
+            color: #8b4513;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .concept-item p {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        /* 品目样式 */
+        .chapter {
+            background: #fff;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .chapter:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+
+        .chapter-header {
+            background: linear-gradient(135deg, #f5f0e8 0%, #e8e0d0 100%);
+            padding: 20px 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid #e0d5c5;
+            transition: background 0.3s;
+        }
+
+        .chapter-header:hover {
+            background: linear-gradient(135deg, #ebe5db 0%, #ddd5c5 100%);
+        }
+
+        .chapter-number {
+            background: #8b4513;
+            color: #fff8dc;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9em;
+            flex-shrink: 0;
+        }
+
+        .chapter-title {
+            flex: 1;
+        }
+
+        .chapter-title h3 {
+            color: #5c4033;
+            font-size: 1.3em;
+            margin-bottom: 3px;
+        }
+
+        .chapter-title .en-title {
+            color: #999;
+            font-size: 0.85em;
+            font-style: italic;
+        }
+
+        .toggle-icon {
+            font-size: 1.5em;
+            color: #8b4513;
+            transition: transform 0.3s;
+        }
+
+        .chapter.expanded .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .chapter-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+        }
+
+        .chapter.expanded .chapter-content {
+            max-height: 500px;
+        }
+
+        .chapter-body {
+            padding: 25px;
+        }
+
+        .content-section {
+            margin-bottom: 20px;
+        }
+
+        .content-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-label {
+            color: #8b4513;
+            font-weight: 600;
+            font-size: 0.95em;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-label::before {
+            content: '';
+            width: 4px;
+            height: 18px;
+            background: #d4af37;
+            border-radius: 2px;
+        }
+
+        .section-content {
+            color: #555;
+            padding-left: 12px;
+            border-left: 2px solid #e0d5c5;
+        }
+
+        /* 总结部分 */
+        .summary {
+            background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+            color: #fff8dc;
+            border-radius: 20px;
+            padding: 50px 40px;
+            margin-top: 50px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(139, 69, 19, 0.3);
+        }
+
+        .summary h2 {
+            font-size: 2em;
+            margin-bottom: 30px;
+        }
+
+        .gatha {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 35px;
+            margin: 30px 0;
+            font-size: 1.3em;
+            line-height: 2.2;
+            border: 2px solid rgba(212, 175, 55, 0.5);
+        }
+
+        .gatha p {
+            margin: 10px 0;
+        }
+
+        .footer-note {
+            margin-top: 30px;
+            opacity: 0.8;
+            font-size: 0.95em;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            background: #8b4513;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar a {
+            color: #fff8dc;
+            text-decoration: none;
+            font-size: 1em;
+            transition: opacity 0.3s;
+        }
+
+        .navbar a:hover {
+            opacity: 0.8;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .header {
+                padding: 40px 20px;
+            }
+
+            .concepts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chapter-header {
+                padding: 15px 20px;
+            }
+
+            .chapter-number {
+                width: 38px;
+                height: 38px;
+                font-size: 0.8em;
+            }
+
+            .chapter-title h3 {
+                font-size: 1.1em;
+            }
+
+            .summary {
+                padding: 35px 25px;
+            }
+
+            .gatha {
+                font-size: 1.1em;
+                padding: 25px;
+            }
+        }
+
+        /* 展开全部按钮 */
+        .controls {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            background: #8b4513;
+            color: #fff8dc;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-family: inherit;
+            transition: all 0.3s;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            background: #a0522d;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 69, 19, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #8b4513;
+            border: 2px solid #8b4513;
+        }
+
+        .btn-secondary:hover {
+            background: #8b4513;
+            color: #fff8dc;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="/">🏠 首页</a>
+            <div class="nav-links">
+                <a href="/">学习</a>
+                <a href="/translation">翻译</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="header">
+            <h1>金刚经</h1>
+            <p class="subtitle">金刚般若波罗蜜经 · 三十二品纲要</p>
+            <p class="intro">
+                《金刚般若波罗蜜经》，简称《金刚经》，由后秦鸠摩罗什大师翻译，是大乘佛教般若部的重要经典。全经共三十二品，阐述"缘起性空"、"无住生心"的般若智慧。
+            </p>
+        </header>
+
+        <!-- 核心要义 -->
+        <div class="core-concepts">
+            <h2>🙏 核心要义</h2>
+            <div class="concepts-grid">
+                <div class="concept-item">
+                    <h3>无住生心</h3>
+                    <p>应无所住而生其心，心不住于色声香味触法</p>
+                </div>
+                <div class="concept-item">
+                    <h3>离相修行</h3>
+                    <p>不住色声香味触法而行布施，三轮体空</p>
+                </div>
+                <div class="concept-item">
+                    <h3>性空幻有</h3>
+                    <p>一切有为法，如梦幻泡影，如露亦如电</p>
+                </div>
+                <div class="concept-item">
+                    <h3>即非是名</h3>
+                    <p>佛说XX，即非XX，是名XX，假名安立</p>
+                </div>
+                <div class="concept-item">
+                    <h3>无得无证</h3>
+                    <p>阿耨多罗三藐三菩提，乃至无有少法可得</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 控制按钮 -->
+        <div class="controls">
+            <button class="btn" onclick="expandAll()">展开全部</button>
+            <button class="btn btn-secondary" onclick="collapseAll()">收起全部</button>
+        </div>
+
+        <!-- 三十二品 -->
+        <div id="chapters-container">
+            <!-- 品目将通过 JavaScript 动态生成 -->
+        </div>
+
+        <!-- 总结 -->
+        <div class="summary">
+            <h2>总结</h2>
+            <p>《金刚经》以般若智慧为体，以无住为相，以度生为用。全经反复阐明：虽度众生而不著度生之相，虽修善法而不著善法之相，虽证菩提而不著菩提之相。</p>
+            
+            <div class="gatha">
+                <p>一切有为法，如梦幻泡影，</p>
+                <p>如露亦如电，应作如是观。</p>
+            </div>
+            
+            <p class="footer-note">愿以此功德，普及于一切<br>我等与众生，皆共成佛道 🙏</p>
+        </div>
+    </div>
+
+    <script>
+        // 三十二品数据
+        const chapters = [
+            { num: 1, title: "法会因由分", content: "佛陀在舍卫国祇树给孤独园，与一千二百五十位大比丘众及诸菩萨聚集。世尊入城乞食，饭后收衣钵、洗足，敷座而坐。", summary: "交代说法的时间、地点、人物，为全经缘起。" },
+            { num: 2, title: "善现启请分", content: "长老须菩提从座而起，向佛请问：善男子、善女人发阿耨多罗三藐三菩提心，应云何住？云何降伏其心？", summary: "提出全经核心问题——发菩提心者如何安住其心、降伏妄想。" },
+            { num: 3, title: "大乘正宗分", content: "佛告须菩提：菩萨应灭度一切众生，而实无众生得灭度者。若菩萨有我相、人相、众生相、寿者相，即非菩萨。", summary: "阐明菩萨度生应离四相，虽度众生而不执著于度生之相。" },
+            { num: 4, title: "妙行无住分", content: "菩萨于法应无所住行于布施，不住色布施，不住声香味触法布施。", summary: "行布施等六度万行时，心不应住于六尘境界，应无所住而生其心。" },
+            { num: 5, title: "如理实见分", content: "须菩提，于意云何？可以身相见如来不？不也，世尊。不可以身相得见如来。", summary: "如来法身非相可见，若以色见我，以音声求我，是人行邪道，不能见如来。" },
+            { num: 6, title: "正信希有分", content: "闻此经不惊不怖不畏者，当知是人甚为希有。如来灭后，后五百岁，有持戒修福者，于此章句能生信心，以此为实。", summary: "正信此经者希有难得，持戒修福是信受的基础。" },
+            { num: 7, title: "无得无说分", content: "如来所得阿耨多罗三藐三菩提，于是中无实无虚。是故如来说一切法皆是佛法。", summary: "菩提无所得，佛法无说无示，一切法皆是佛法。" },
+            { num: 8, title: "依法出生分", content: "一切诸佛及诸佛阿耨多罗三藐三菩提法，皆从此经出。所谓佛法者，即非佛法，是名佛法。", summary: "此经为诸佛之母，一切法从般若出生，但佛法亦不可执著。" },
+            { num: 9, title: "一相无相分", content: "须菩提，于意云何？须陀洹能作是念——我得须陀洹果不？须菩提言：不也，世尊。何以故？须陀洹名为入流，而无所入。", summary: "四果圣人皆不应取相执著，无住于果位之相。" },
+            { num: 10, title: "庄严净土分", content: "佛告须菩提：诸菩萨摩诃萨应如是生清净心，不应住色生心，不应住声香味触法生心，应无所住而生其心。", summary: "菩萨庄严佛土，而心不著于庄严之相，应无所住而生清净心。" },
+            { num: 11, title: "无为福胜分", content: "若人满三千大千世界七宝以用布施，所得福德多否？须菩提言：甚多，世尊。佛告须菩提：若善男子、善女人于此经中，乃至受持四句偈等，为他人说，而此福德胜前福德。", summary: "持诵解说此经的福德，胜过以满三千大千世界七宝布施的福德。" },
+            { num: 12, title: "尊重正教分", content: "随说是经，乃至四句偈等，当知此处，一切世间天人阿修罗，皆应供养，如佛塔庙。", summary: "此经所在之处即为有佛，应受一切天人供养尊重。" },
+            { num: 13, title: "如法受持分", content: "佛告须菩提：是经名为金刚般若波罗蜜，以是名字，汝当奉持。所以者何？须菩提，佛说般若波罗蜜，即非般若波罗蜜，是名般若波罗蜜。", summary: "揭示经名含义，阐明'佛说XX，即非XX，是名XX'的三段论式。" },
+            { num: 14, title: "离相寂灭分", content: "若复有人得闻是经，不惊不怖不畏，当知是人甚为希有。如我昔为歌利王割截身体，我于尔时，无我相、无人相、无众生相、无寿者相。", summary: "忍辱波罗蜜应离四相，不执著于忍辱之相，心不生嗔恨。" },
+            { num: 15, title: "持经功德分", content: "若有善男子、善女人，初日分以恒河沙等身布施，中日分复以恒河沙等身布施，后日分亦以恒河沙等身布施，如是无量百千万亿劫以身布施。若复有人闻此经典，信心不逆，其福胜彼。", summary: "闻经信受的功德，胜过无量劫以身布施的功德。" },
+            { num: 16, title: "能净业障分", content: "若善男子、善女人受持读诵此经，若为人轻贱，是人先世罪业应堕恶道，以今世人轻贱故，先世罪业则为消灭，当得阿耨多罗三藐三菩提。", summary: "持经可消业障，今世所受轻贱是重罪轻报，终得无上菩提。" },
+            { num: 17, title: "究竟无我分", content: "佛告须菩提：如来者，即诸法如义。若有人言如来若来若去、若坐若卧，是人不解我所说义。何以故？如来者，无所从来，亦无所去，故名如来。", summary: "阐明如来法身超越来去坐卧之相，是诸法实相。" },
+            { num: 18, title: "一体同观分", content: "如来有肉眼、天眼、慧眼、法眼、佛眼。须菩提，于意云何？如恒河中所有沙，佛说是沙不？如是，世尊，如来说是沙。", summary: "佛具五眼，能照见一切众生心，但众生心非心，是名为心。" },
+            { num: 19, title: "法界通化分", content: "若有人满三千大千世界七宝以用布施，是人以是因缘，得福多不？如是，世尊，此人以是因缘，得福甚多。须菩提，若福德有实，如来不说得福德多，以福德无故，如来说得福德多。", summary: "福德性空，故说福德多，不应执著于福德之相。" },
+            { num: 20, title: "离色离相分", content: "佛告须菩提：于意云何？佛可以具足色身见不？不也，世尊，如来不应以具足色身见。何以故？如来说具足色身，即非具足色身，是名具足色身。", summary: "佛的色身、相好皆不可执著，具足色身即非具足色身。" },
+            { num: 21, title: "非说所说分", content: "须菩提，汝勿谓如来作是念——我当有所说法。莫作是念。何以故？若人言如来有所说法，即为谤佛，不能解我所说故。", summary: "如来无说法之念，说法者无法可说，是名说法。" },
+            { num: 22, title: "无法可得分", content: "须菩提白佛言：世尊，佛得阿耨多罗三藐三菩提，为无所得耶？佛言：如是，如是。须菩提，我于阿耨多罗三藐三菩提，乃至无有少法可得，是名阿耨多罗三藐三菩提。", summary: "菩提无所得，若有少法可得，燃灯佛则不与我授记。" },
+            { num: 23, title: "净心行善分", content: "复次，须菩提，是法平等，无有高下，是名阿耨多罗三藐三菩提。以无我、无人、无众生、无寿者，修一切善法，即得阿耨多罗三藐三菩提。", summary: "一切法平等，离四相修一切善法，即得菩提。" },
+            { num: 24, title: "福智无比分", content: "若人满三千大千世界七宝以用布施，若复有人知一切法无我，得成于忍，此菩萨胜前菩萨所得功德。", summary: "通达无我之法的功德，胜过以七宝布施的功德。" },
+            { num: 25, title: "化无所化分", content: "佛告须菩提：于意云何？汝等勿谓如来作是念——我当度众生。须菩提，莫作是念。何以故？实无有众生如来度者。若有众生如来度者，如来则有我、人、众生、寿者。", summary: "实无众生可度，若言度众生，则落四相执著。" },
+            { num: 26, title: "法身非相分", content: "佛告须菩提：于意云何？可以三十二相观如来不？须菩提言：如是，如是，以三十二相观如来。佛言：须菩提，若以三十二相观如来者，转轮圣王则是如来。", summary: "不可以三十二相见如来，法身非相，三十二相是应化身之相。" },
+            { num: 27, title: "无断无灭分", content: "须菩提，汝若作是念——如来不以具足相故，得阿耨多罗三藐三菩提。须菩提，莫作是念。发阿耨多罗三藐三菩提心者，于法不说断灭相。", summary: "虽不执著于相，但亦不可堕于断灭空，应中道而行。" },
+            { num: 28, title: "不受不贪分", content: "须菩提，若菩萨以满恒河沙等世界七宝，持用布施。若复有人知一切法无我，得成于忍，此菩萨胜前菩萨所得功德。", summary: "菩萨不受福德，不贪著于福德，是名不受不贪。" },
+            { num: 29, title: "威仪寂净分", content: "须菩提，若有人言如来若来若去、若坐若卧，是人不解我所说义。何以故？如来者，无所从来，亦无所去，故名如来。", summary: "如来法身超越动静之相，无所从来，亦无所去。" },
+            { num: 30, title: "一合理相分", content: "佛告须菩提：若善男子、善女人，以三千大千世界碎为微尘，于意云何？是微尘众宁为多不？甚多，世尊。须菩提，诸微尘，如来说非微尘，是名微尘。如来说世界，非世界，是名世界。", summary: "微尘、世界皆假名，一合相者，即是不可说，但凡夫之人贪著其事。" },
+            { num: 31, title: "知见不生分", content: "须菩提，若人言佛说我见、人见、众生见、寿者见，须菩提，于意云何？是人解我所说义不？不也，世尊，是人不解如来所说义。", summary: "佛说四见，即非四见，是名四见。发无上菩提心者，于一切法，应如是知、如是见、如是信解，不生法相。" },
+            { num: 32, title: "应化非真分", content: "须菩提，若有人以满无量阿僧祇世界七宝，持用布施。若有善男子、善女人发菩提心者，持于此经，乃至四句偈等，受持读诵，为人演说，其福胜彼。", summary: "总结全经，持经功德最为殊胜。一切有为法，如梦幻泡影，如露亦如电，应作如是观。" }
+        ];
+
+        // 渲染品目
+        function renderChapters() {
+            const container = document.getElementById('chapters-container');
+            container.innerHTML = chapters.map(chapter => `
+                <div class="chapter" id="chapter-${chapter.num}">
+                    <div class="chapter-header" onclick="toggleChapter(${chapter.num})">
+                        <div class="chapter-number">${chapter.num}</div>
+                        <div class="chapter-title">
+                            <h3>${chapter.title}</h3>
+                        </div>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="chapter-content">
+                        <div class="chapter-body">
+                            <div class="content-section">
+                                <div class="section-label">核心内容</div>
+                                <div class="section-content">${chapter.content}</div>
+                            </div>
+                            <div class="content-section">
+                                <div class="section-label">纲要</div>
+                                <div class="section-content">${chapter.summary}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 切换展开/收起
+        function toggleChapter(num) {
+            const chapter = document.getElementById(`chapter-${num}`);
+            chapter.classList.toggle('expanded');
+        }
+
+        // 展开全部
+        function expandAll() {
+            document.querySelectorAll('.chapter').forEach(ch => ch.classList.add('expanded'));
+        }
+
+        // 收起全部
+        function collapseAll() {
+            document.querySelectorAll('.chapter').forEach(ch => ch.classList.remove('expanded'));
+        }
+
+        // 初始化
+        renderChapters();
+    </script>
+</body>
+</html>

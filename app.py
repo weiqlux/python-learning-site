@@ -424,6 +424,12 @@ def api_tutorials():
     return jsonify(TUTORIALS)
 
 
+@app.route('/jingangjing')
+def jingangjing():
+    """金刚经三十二品纲要页面"""
+    return render_template('jingangjing.html')
+
+
 @app.route('/translation')
 def translation_index():
     """英语翻译练习首页"""
