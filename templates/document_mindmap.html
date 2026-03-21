@@ -32,7 +32,15 @@
             background: #f0f4ff;
         }
         #mindmap-container {
-            min-height: 500px;
+            min-height: 800px;
+            height: 800px;
+        }
+        #mindmap-container .markmap {
+            height: 800px !important;
+        }
+        #mindmap-canvas {
+            width: 100%;
+            height: 100%;
         }
         .loading-spinner {
             border: 3px solid #f3f3f3;
@@ -190,6 +198,7 @@
                             <button onclick="collapseAll()" class="text-sm text-blue-600 hover:underline">收起全部</button>
                             <button onclick="exportToXmind()" class="text-sm bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition-colors">📥 导出 .xmind</button>
                             <button onclick="exportToMermaid()" class="text-sm bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700 transition-colors">📋 Mermaid</button>
+                            <button onclick="exportToJpg()" class="text-sm bg-orange-600 text-white px-3 py-1 rounded hover:bg-orange-700 transition-colors">🖼️ 导出 JPG</button>
                         </div>
                     </div>
                     <div id="mindmap-container" class="border rounded-lg overflow-hidden">
@@ -439,6 +448,12 @@
                 const el = container.querySelector('.markmap');
                 if (el && window.markmap) {
                     window.markmap.autoLoader.render(el);
+                    // 设置 SVG 尺寸以适应容器
+                    const svg = el.querySelector('svg');
+                    if (svg) {
+                        svg.style.width = '100%';
+                        svg.style.height = '100%';
+                    }
                 }
             }, 100);
         }
@@ -782,6 +797,69 @@
                 btn.classList.remove('bg-green-600');
                 btn.classList.add('bg-purple-600');
             }, 2000);
+        }
+
+        // 导出为 JPG 图片
+        async function exportToJpg() {
+            const container = document.getElementById('mindmap-container');
+            const svgElement = container.querySelector('svg');
+            
+            if (!svgElement) {
+                alert('请先生成思维导图');
+                return;
+            }
+
+            try {
+                // 获取思维导图标题
+                const title = document.querySelector('#analysis-result h3')?.textContent || '思维导图';
+                
+                // 创建 canvas
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // 获取 SVG 尺寸
+                const svgRect = svgElement.getBoundingClientRect();
+                const svgWidth = svgElement.viewBox?.baseVal?.width || svgRect.width || 1200;
+                const svgHeight = svgElement.viewBox?.baseVal?.height || svgRect.height || 800;
+                
+                // 设置 canvas 尺寸（2倍分辨率以获得更清晰的图片）
+                const scale = 2;
+                canvas.width = svgWidth * scale;
+                canvas.height = svgHeight * scale;
+                
+                // 设置白色背景
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // 将 SVG 转换为字符串
+                const svgData = new XMLSerializer().serializeToString(svgElement);
+                const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(svgBlob);
+                
+                // 创建图片对象
+                const img = new Image();
+                img.onload = function() {
+                    // 绘制图片到 canvas
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    URL.revokeObjectURL(url);
+                    
+                    // 转换为 JPG 并下载
+                    canvas.toBlob(function(blob) {
+                        const downloadUrl = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = downloadUrl;
+                        a.download = `${title.replace(/[^\w\u4e00-\u9fa5]/g, '_')}_${new Date().toISOString().slice(0, 10)}.jpg`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(downloadUrl);
+                    }, 'image/jpeg', 0.95);
+                };
+                img.src = url;
+            } catch (error) {
+                console.error('导出 JPG 失败:', error);
+                alert('导出 JPG 失败：' + error.message);
+            }
         }
 
         // 历史记录
