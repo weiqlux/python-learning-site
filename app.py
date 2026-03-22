@@ -1378,6 +1378,111 @@ def api_export_xmind_by_session(session_id):
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@app.route('/api/document/export/ppt', methods=['POST'])
+def api_document_export_ppt():
+    """导出为 PPT 文件"""
+    try:
+        data = request.get_json()
+        session_id = data.get('session_id')
+        theme = data.get('theme', 'blue')
+        
+        if not session_id:
+            return jsonify({'success': False, 'error': '缺少 session_id'}), 400
+        
+        # 获取会话数据
+        session = doc_mindmap_generator.get_session(session_id)
+        if not session:
+            return jsonify({'success': False, 'error': '会话不存在'}), 404
+        
+        mindmap_data = session.get('mindmap_data', {})
+        chat_history = session.get('chat_history', [])
+        title = session.get('document_title', '演示文稿')
+        
+        if not mindmap_data:
+            return jsonify({'success': False, 'error': '没有思维导图数据'}), 400
+        
+        # 生成 PPT
+        export_path = doc_mindmap_generator.generate_ppt_from_mindmap(
+            mindmap_data=mindmap_data,
+            chat_history=chat_history,
+            title=title,
+            theme=theme
+        )
+        
+        # 读取文件并返回
+        with open(export_path, 'rb') as f:
+            file_data = f.read()
+        
+        # 清理临时文件
+        try:
+            os.remove(export_path)
+        except:
+            pass
+        
+        filename = f"{title.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d')}.pptx"
+        
+        return send_file(
+            io.BytesIO(file_data),
+            mimetype='application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            as_attachment=True,
+            download_name=filename
+        )
+        
+    except Exception as e:
+        logger.error(f"导出 PPT 失败：{e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/document/export/ppt/<session_id>')
+def api_document_export_ppt_by_session(session_id):
+    """通过会话 ID 导出 PPT"""
+    try:
+        theme = request.args.get('theme', 'blue')
+        
+        # 获取会话数据
+        session = doc_mindmap_generator.get_session(session_id)
+        if not session:
+            return jsonify({'success': False, 'error': '会话不存在'}), 404
+        
+        mindmap_data = session.get('mindmap_data', {})
+        chat_history = session.get('chat_history', [])
+        title = session.get('document_title', '演示文稿')
+        
+        if not mindmap_data:
+            return jsonify({'success': False, 'error': '没有思维导图数据'}), 400
+        
+        # 生成 PPT
+        export_path = doc_mindmap_generator.generate_ppt_from_mindmap(
+            mindmap_data=mindmap_data,
+            chat_history=chat_history,
+            title=title,
+            theme=theme
+        )
+        
+        # 读取文件并返回
+        with open(export_path, 'rb') as f:
+            file_data = f.read()
+        
+        # 清理临时文件
+        try:
+            os.remove(export_path)
+        except:
+            pass
+        
+        filename = f"{title.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d')}.pptx"
+        
+        return send_file(
+            io.BytesIO(file_data),
+            mimetype='application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            as_attachment=True,
+            download_name=filename
+        )
+        
+    except Exception as e:
+        logger.error(f"导出 PPT 失败：{e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 # 优雅关闭处理
 shutdown_requested = False
 server = None

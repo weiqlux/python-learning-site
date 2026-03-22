@@ -197,6 +197,7 @@
                             <button onclick="expandAll()" class="text-sm text-blue-600 hover:underline">展开全部</button>
                             <button onclick="collapseAll()" class="text-sm text-blue-600 hover:underline">收起全部</button>
                             <button onclick="exportToXmind()" class="text-sm bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition-colors">📥 导出 .xmind</button>
+                            <button onclick="exportToPpt()" class="text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors">📊 生成 PPT</button>
                             <button onclick="exportToMermaid()" class="text-sm bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700 transition-colors">📋 Mermaid</button>
                             <button onclick="exportToJpg()" class="text-sm bg-orange-600 text-white px-3 py-1 rounded hover:bg-orange-700 transition-colors">🖼️ 导出 JPG</button>
                         </div>
@@ -669,6 +670,126 @@
                 }
             } catch (error) {
                 alert('导出失败：' + error.message);
+            }
+        }
+
+        // 导出为 PPT
+        async function exportToPpt() {
+            if (!currentSessionId) {
+                alert('请先生成思维导图');
+                return;
+            }
+            
+            // 显示主题选择模态框
+            showPptThemeModal();
+        }
+        
+        // 显示 PPT 主题选择模态框
+        function showPptThemeModal() {
+            const modal = document.createElement('div');
+            modal.id = 'ppt-theme-modal';
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+            modal.innerHTML = `
+                <div class="bg-white rounded-xl max-w-md w-full mx-4 shadow-2xl">
+                    <div class="p-6 border-b flex justify-between items-center bg-gray-50">
+                        <h3 class="text-lg font-semibold">📊 生成 PPT</h3>
+                        <button onclick="closePptThemeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-600 mb-4">选择 PPT 主题配色：</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="generatePpt('blue')" class="theme-option p-4 rounded-lg border-2 border-gray-200 hover:border-blue-500 transition-colors text-left" data-theme="blue">
+                                <div class="w-full h-8 rounded mb-2" style="background: linear-gradient(135deg, #1E3A5F 0%, #4A90E2 100%)"></div>
+                                <div class="font-medium">商务蓝</div>
+                                <div class="text-sm text-gray-500">专业、稳重</div>
+                            </button>
+                            <button onclick="generatePpt('green')" class="theme-option p-4 rounded-lg border-2 border-gray-200 hover:border-green-500 transition-colors text-left" data-theme="green">
+                                <div class="w-full h-8 rounded mb-2" style="background: linear-gradient(135deg, #1B5E20 0%, #66BB6A 100%)"></div>
+                                <div class="font-medium">生态绿</div>
+                                <div class="text-sm text-gray-500">环保、健康</div>
+                            </button>
+                            <button onclick="generatePpt('purple')" class="theme-option p-4 rounded-lg border-2 border-gray-200 hover:border-purple-500 transition-colors text-left" data-theme="purple">
+                                <div class="w-full h-8 rounded mb-2" style="background: linear-gradient(135deg, #4A148C 0%, #9C27B0 100%)"></div>
+                                <div class="font-medium">创意紫</div>
+                                <div class="text-sm text-gray-500">创新、艺术</div>
+                            </button>
+                            <button onclick="generatePpt('orange')" class="theme-option p-4 rounded-lg border-2 border-gray-200 hover:border-orange-500 transition-colors text-left" data-theme="orange">
+                                <div class="w-full h-8 rounded mb-2" style="background: linear-gradient(135deg, #E65100 0%, #FF9800 100%)"></div>
+                                <div class="font-medium">活力橙</div>
+                                <div class="text-sm text-gray-500">热情、活力</div>
+                            </button>
+                            <button onclick="generatePpt('dark')" class="theme-option p-4 rounded-lg border-2 border-gray-200 hover:border-gray-600 transition-colors text-left col-span-2" data-theme="dark">
+                                <div class="w-full h-8 rounded mb-2" style="background: linear-gradient(135deg, #212121 0%, #616161 100%)"></div>
+                                <div class="font-medium">深邃黑</div>
+                                <div class="text-sm text-gray-500">高端、简约</div>
+                            </button>
+                        </div>
+                        <div class="mt-4 text-sm text-gray-500">
+                            <p>💡 提示：PPT 将基于思维导图结构和对话分析内容生成</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        // 关闭 PPT 主题选择模态框
+        function closePptThemeModal() {
+            const modal = document.getElementById('ppt-theme-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        // 生成 PPT
+        async function generatePpt(theme) {
+            closePptThemeModal();
+            
+            // 显示加载提示
+            const loadingToast = document.createElement('div');
+            loadingToast.className = 'fixed top-4 right-4 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            loadingToast.innerHTML = '📊 正在生成 PPT，请稍候...';
+            document.body.appendChild(loadingToast);
+            
+            try {
+                const response = await fetch(`/api/document/export/ppt/${currentSessionId}?theme=${theme}`);
+                
+                if (response.ok) {
+                    // 获取文件名
+                    const contentDisposition = response.headers.get('content-disposition');
+                    let filename = '演示文稿.pptx';
+                    if (contentDisposition) {
+                        const match = contentDisposition.match(/filename="?([^"]+)"?/);
+                        if (match) {
+                            filename = match[1];
+                        }
+                    }
+                    
+                    // 下载文件
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    // 更新提示
+                    loadingToast.innerHTML = '✅ PPT 生成成功！';
+                    loadingToast.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                    setTimeout(() => loadingToast.remove(), 3000);
+                } else {
+                    const result = await response.json();
+                    loadingToast.innerHTML = '❌ 生成失败：' + (result.error || '未知错误');
+                    loadingToast.className = 'fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                    setTimeout(() => loadingToast.remove(), 5000);
+                }
+            } catch (error) {
+                loadingToast.innerHTML = '❌ 生成失败：' + error.message;
+                loadingToast.className = 'fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                setTimeout(() => loadingToast.remove(), 5000);
             }
         }
 

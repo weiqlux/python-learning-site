@@ -31,6 +31,18 @@ except ImportError:
     logger = logging.getLogger(__name__)
     logger.warning("xmind 库未安装，将使用备用方案生成 .xmind 文件")
 
+# 尝试导入 python-pptx 库
+try:
+    from pptx import Presentation
+    from pptx.util import Inches, Pt
+    from pptx.enum.text import PP_ALIGN
+    from pptx.enum.shapes import MSO_SHAPE
+    from pptx.dml.color import RGBColor
+    PPTX_AVAILABLE = True
+except ImportError:
+    PPTX_AVAILABLE = False
+    logger.warning("python-pptx 库未安装，PPT 导出功能将不可用")
+
 # 配置日志
 logging.basicConfig(
     level=logging.DEBUG,
@@ -1235,6 +1247,231 @@ class DocumentMindMapGenerator:
 </body>
 </html>'''
         return html
+
+    def generate_ppt_from_mindmap(
+        self,
+        mindmap_data: Dict,
+        chat_history: List[Dict] = None,
+        title: str = "演示文稿",
+        theme: str = "blue"
+    ) -> str:
+        """
+        将思维导图和对话历史转换为 PPT
+        
+        Args:
+            mindmap_data: 思维导图数据结构
+            chat_history: 对话历史记录
+            title: PPT 标题
+            theme: 主题颜色 (blue, green, purple, orange, dark)
+            
+        Returns:
+            生成的 PPT 文件路径
+        """
+        if not PPTX_AVAILABLE:
+            raise ImportError("python-pptx 库未安装，无法生成 PPT")
+        
+        # 主题颜色配置
+        themes = {
+            "blue": {"primary": RGBColor(0x1E, 0x3A, 0x5F), "accent": RGBColor(0x4A, 0x90, 0xE2)},
+            "green": {"primary": RGBColor(0x1B, 0x5E, 0x20), "accent": RGBColor(0x66, 0xBB, 0x6A)},
+            "purple": {"primary": RGBColor(0x4A, 0x14, 0x8C), "accent": RGBColor(0x9C, 0x27, 0xB0)},
+            "orange": {"primary": RGBColor(0xE6, 0x51, 0x00), "accent": RGBColor(0xFF, 0x98, 0x00)},
+            "dark": {"primary": RGBColor(0x21, 0x21, 0x21), "accent": RGBColor(0x61, 0x61, 0x61)},
+        }
+        colors = themes.get(theme, themes["blue"])
+        
+        # 创建演示文稿
+        prs = Presentation()
+        prs.slide_width = Inches(13.333)
+        prs.slide_height = Inches(7.5)
+        
+        # 1. 添加封面
+        self._add_ppt_title_slide(prs, title, "基于 AI 分析生成", colors)
+        
+        # 2. 添加目录页
+        if mindmap_data and mindmap_data.get('children'):
+            toc_items = [child.get('name', f'章节 {i+1}') for i, child in enumerate(mindmap_data.get('children', []))]
+            self._add_ppt_content_slide(prs, "目录", toc_items, colors)
+        
+        # 3. 根据思维导图添加内容页
+        if mindmap_data:
+            root_name = mindmap_data.get('root', '主题')
+            children = mindmap_data.get('children', [])
+            
+            for i, child in enumerate(children):
+                section_title = child.get('name', f'章节 {i+1}')
+                
+                # 添加章节分隔页
+                self._add_ppt_section_slide(prs, section_title, colors)
+                
+                # 收集该章节下的所有要点
+                points = []
+                sub_children = child.get('children', [])
+                
+                for sub in sub_children:
+                    point = sub.get('name', '')
+                    if point:
+                        points.append(point)
+                        # 添加子要点
+                        sub_sub = sub.get('children', [])
+                        for ss in sub_sub:
+                            sub_point = ss.get('name', '')
+                            if sub_point:
+                                points.append(f"  • {sub_point}")
+                
+                # 如果有要点，添加内容页
+                if points:
+                    # 每页最多显示 6 个要点
+                    for j in range(0, len(points), 6):
+                        page_points = points[j:j+6]
+                        page_title = section_title if j == 0 else f"{section_title} (续)"
+                        self._add_ppt_content_slide(prs, page_title, page_points, colors)
+                else:
+                    # 没有子要点，显示章节标题
+                    self._add_ppt_content_slide(prs, section_title, ["本章暂无详细内容"], colors)
+        
+        # 4. 添加对话分析摘要（如果有）
+        if chat_history:
+            # 提取关键对话内容
+            key_qa = []
+            for chat in chat_history[-6:]:  # 最近 6 条对话
+                if chat.get('role') == 'user':
+                    content = chat.get('content', '')
+                    if len(content) > 100:
+                        content = content[:100] + '...'
+                    key_qa.append(f"Q: {content}")
+                elif chat.get('role') == 'assistant':
+                    try:
+                        content = json.loads(chat.get('content', '{}'))
+                        answer = content.get('answer', '')
+                        if len(answer) > 100:
+                            answer = answer[:100] + '...'
+                        if answer:
+                            key_qa.append(f"A: {answer}")
+                    except:
+                        pass
+            
+            if key_qa:
+                self._add_ppt_section_slide(prs, "对话分析摘要", colors)
+                self._add_ppt_content_slide(prs, "关键问答", key_qa[:6], colors)
+        
+        # 5. 添加结束页
+        self._add_ppt_end_slide(prs, "谢谢观看", colors)
+        
+        # 保存文件
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        output_path = f"/tmp/ppt_{timestamp}.pptx"
+        prs.save(output_path)
+        
+        return output_path
+    
+    def _add_ppt_title_slide(self, prs, title, subtitle, colors):
+        """添加 PPT 封面页"""
+        slide = prs.slides.add_slide(prs.slide_layouts[6])
+        
+        # 背景
+        bg = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0), Inches(0), prs.slide_width, prs.slide_height)
+        bg.fill.solid()
+        bg.fill.fore_color.rgb = colors["primary"]
+        bg.line.fill.background()
+        
+        # 标题
+        title_box = slide.shapes.add_textbox(Inches(0.5), Inches(2.5), Inches(12.333), Inches(1.5))
+        tf = title_box.text_frame
+        p = tf.paragraphs[0]
+        p.text = title
+        p.font.size = Pt(54)
+        p.font.bold = True
+        p.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
+        p.alignment = PP_ALIGN.CENTER
+        
+        # 副标题
+        if subtitle:
+            sub_box = slide.shapes.add_textbox(Inches(0.5), Inches(4.2), Inches(12.333), Inches(1))
+            tf = sub_box.text_frame
+            p = tf.paragraphs[0]
+            p.text = subtitle
+            p.font.size = Pt(28)
+            p.font.color.rgb = RGBColor(0xCC, 0xCC, 0xCC)
+            p.alignment = PP_ALIGN.CENTER
+    
+    def _add_ppt_content_slide(self, prs, title, points, colors):
+        """添加 PPT 内容页"""
+        slide = prs.slides.add_slide(prs.slide_layouts[6])
+        
+        # 顶部色条
+        bar = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0), Inches(0), prs.slide_width, Inches(0.15))
+        bar.fill.solid()
+        bar.fill.fore_color.rgb = colors["accent"]
+        bar.line.fill.background()
+        
+        # 标题
+        title_box = slide.shapes.add_textbox(Inches(0.5), Inches(0.4), Inches(12.333), Inches(0.8))
+        tf = title_box.text_frame
+        p = tf.paragraphs[0]
+        p.text = title
+        p.font.size = Pt(36)
+        p.font.bold = True
+        p.font.color.rgb = colors["primary"]
+        
+        # 内容
+        content_box = slide.shapes.add_textbox(Inches(0.7), Inches(1.5), Inches(12), Inches(5.5))
+        tf = content_box.text_frame
+        tf.word_wrap = True
+        
+        for i, point in enumerate(points):
+            if i == 0:
+                p = tf.paragraphs[0]
+            else:
+                p = tf.add_paragraph()
+            
+            # 处理缩进
+            if point.startswith("  "):
+                p.text = point.strip()
+                p.level = 1
+                p.font.size = Pt(16)
+            else:
+                p.text = f"• {point}"
+                p.font.size = Pt(20)
+            
+            p.font.color.rgb = RGBColor(0x33, 0x33, 0x33)
+            p.space_after = Pt(12)
+    
+    def _add_ppt_section_slide(self, prs, title, colors):
+        """添加 PPT 章节分隔页"""
+        slide = prs.slides.add_slide(prs.slide_layouts[6])
+        
+        bg = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0), Inches(0), prs.slide_width, prs.slide_height)
+        bg.fill.solid()
+        bg.fill.fore_color.rgb = colors["accent"]
+        bg.line.fill.background()
+        
+        title_box = slide.shapes.add_textbox(Inches(0.5), Inches(3), Inches(12.333), Inches(1.5))
+        tf = title_box.text_frame
+        p = tf.paragraphs[0]
+        p.text = title
+        p.font.size = Pt(48)
+        p.font.bold = True
+        p.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
+        p.alignment = PP_ALIGN.CENTER
+    
+    def _add_ppt_end_slide(self, prs, message, colors):
+        """添加 PPT 结束页"""
+        slide = prs.slides.add_slide(prs.slide_layouts[6])
+        
+        bg = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0), Inches(0), prs.slide_width, prs.slide_height)
+        bg.fill.solid()
+        bg.fill.fore_color.rgb = colors["primary"]
+        bg.line.fill.background()
+        
+        msg_box = slide.shapes.add_textbox(Inches(0.5), Inches(3), Inches(12.333), Inches(1.5))
+        tf = msg_box.text_frame
+        p = tf.paragraphs[0]
+        p.text = message
+        p.font.size = Pt(60)
+        p.font.bold = True
+        p.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
+        p.alignment = PP_ALIGN.CENTER
 
 
 # 便捷函数
