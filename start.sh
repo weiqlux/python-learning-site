@@ -9,15 +9,16 @@ fuser -k 5000/tcp 2>/dev/null
 pkill -f "python app.py" 2>/dev/null
 sleep 2
 
-# 先加载 env 文件（优先级最高）
+# 加载 env 文件
 if [ -f env ]; then
-    set -a
-    source env
-    set +a
+    export $(grep -v '^#' env | xargs)
 fi
 
-# 如果 env 没有设置，使用 shell 环境变量或默认值
-export DASHSCOPE_API_KEY="${DASHSCOPE_API_KEY:sk-0cef0d70b3de4996818778500a26bdf2}"
+# 如果 env 没有设置，使用默认值
+if [ -z "$DASHSCOPE_API_KEY" ]; then
+    export DASHSCOPE_API_KEY="sk-sp-2d8aba6729a1464596560180d33a998b"
+fi
+
 export PYTHONUNBUFFERED=1
 
 # 打印确认（调试用）
